@@ -1,6 +1,6 @@
 ---
 title: "Generalized Linear Models "
-author: "Alexander J Ohrt"
+author: "Alexander J Ohrt (Alex-Alex-Helena)"
 date: '`r format(Sys.Date(),"%e %B, %Y")`'
 output:
   pdf_document:
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE, comment = "#>", warning = FALSE)
 library(knitr)
 ```
 
-[This](https://www.statmethods.net/advstats/glm.html) is the website that I will be copying in this task. 
+[This](https://www.statmethods.net/advstats/glm.html) is the website that we will be reproducing in this task. 
 
 Generalized linear models are fit using the **glm()** function. The form of the **glm** function is 
 
