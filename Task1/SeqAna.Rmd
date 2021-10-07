@@ -5,10 +5,14 @@ date: '`r format(Sys.Date(),"%e %B, %Y")`'
 output: 
   html_document
   #pdf_document
+params:
+  path: "/home/ajo/gitRepos/bioinformatics/Task1"
+  name_fasta: "gi32141095_N_1.fa"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, comment = "#>")
+knitr::opts_chunk$set(echo = TRUE, comment = "#>", warning = F)
+library(Biostrings)
 ```
 
 Este es el primer análisis dinámico de una secuencia.
@@ -18,42 +22,22 @@ El fichero de entrada es cualquier secuencia con formato fasta con un tamaño m�
 <!-- Could use read.fasta() to read the file (from seqinr library), but we were asked to use base R here. -->
 
 ```{r, echo = F}
-filename <- 'gi32141095_N_1.fa'
+filepath <- paste(params$path, params$name_fasta, sep = "/")
 ```
 
-La secuencia leida del fichero **`r filename`** es:
+La secuencia leida del fichero **`r params$name_fasta`** es:
 
 ```{r, echo = F}
-(lines <- readLines(filename))
-sequence <- lines[2]
-spl <- strsplit(sequence, split = "")[[1]]
+(DNA <- readDNAStringSet(filepath))
+#sequence <- lines[2]
+#spl <- strsplit(sequence, split = "")[[1]]
 ```
 
 <!-- I think there exists packages for this count also, but done quick and dirty below -->
 
-```{r, echo = F}
-# Find counts of A [1], C [2], G [3] and T [4] in sequence.
-characters <- c(0, 0, 0, 0) 
-for (t in spl){
-  t
-  if (t == "A"){
-    characters[1] <- characters[1] + 1
-  }
-  else if (t == "C"){
-    characters[2] <- characters[2] + 1
-  }
-  else if (t == "G"){
-    characters[3] <- characters[3] + 1
-  }
-  else if (t == "T"){
-    characters[4] <- characters[4] + 1
-  }
-}
-```
+La longitud de la secuencia es de *`r width(DNA)`* bases. Estan repartidas como:
 
-La longitud de la secuencia es de *`r nchar(sequence)`* bases. Estan repartidas como:
-
-* **Adeninas** (A): `r characters[1]`
-* **Citosinas** (C): `r characters[2]`
-* **Guaninas** (G): `r characters[3]`
-* **Timinas** (T): `r characters[4]`
+* **Adeninas** (A): `r vcountPattern("A", DNA)`
+* **Citosinas** (C): `r vcountPattern("C", DNA)`
+* **Guaninas** (G): `r vcountPattern("G", DNA)`
+* **Timinas** (T): `r vcountPattern("T", DNA)`
