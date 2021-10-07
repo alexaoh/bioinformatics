@@ -1,6 +1,6 @@
 ---
 title: "Análisis de una secuencia (Task 1)"
-author: "Alexander J Ohrt (Alex-Alex-Helena)"
+author: "Alex-Alex-Helena"
 date: '`r format(Sys.Date(),"%e %B, %Y")`'
 output: 
   html_document:
