@@ -1,0 +1,32 @@
+---
+title: "Searching in Biological Databases (Task 2)"
+author: "Alex-Alex-Helena"
+date: '`r format(Sys.Date(),"%e %B, %Y")`'
+output: 
+  html_document
+    #code_folding: hide
+  #pdf_document
+urlcolor: blue
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = "#>", warning = F)
+library(biomartr)
+library(seqinr)
+```
+
+## Introduction
+
+The purpose of this task is to play around with querying different types of biological databases using R. In the following, some questions will be answered using queries. 
+
+### Question 1: 
+Retrieve the genome of a cat via its *scientific name* or *taxonomic identifier from NCBI Taxonomy*. Then read the file. 
+
+This information will be retrieved using the library `biomartr`. The documentation can be found [here](https://rdrr.io/cran/biomartr/man/getGenome.html)
+
+### Question 2: 
+Find the allele names in the Applied Biosystem identifiler allelic ladder (from the `seqinr` library)
+
+### Question 3: 
+We have the [Uniprot](https://www.uniprot.org/) code of a human transcription factor: Q01196. We must (a) identify  the name of the protein; and (b) find molecular pathways where this protein is participating in both KEGG and REACTOME and compare them.

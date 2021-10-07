@@ -1,0 +1,103 @@
+---
+title: "Searching in Biological Databases (Task 2)"
+author: "Alex-Alex-Helena"
+date: '`r format(Sys.Date(),"%e %B, %Y")`'
+output: 
+  #html_document
+    #code_folding: hide
+  pdf_document
+urlcolor: blue
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = "#>", warning = F)
+library(biomartr)
+library(seqinr)
+library(UniprotR)
+```
+
+## Introduction
+
+The purpose of this task is to play around with querying different types of biological databases using R. In the following, some questions will be answered using queries. 
+
+### Question 1: 
+Retrieve the genome of a cat via its *scientific name* or *taxonomic identifier from NCBI Taxonomy*. Then read the file. 
+
+This information will be retrieved using the library `biomartr`. The documentation can be found [here](https://rdrr.io/cran/biomartr/man/getGenome.html)
+
+### Answer 1:
+```{r, cache=T, results=F}
+# Retrieval of the genome into a file. THIS CODE TAKES SOME TIME!
+file.path <- getGenome(db = "refseq", organism = "Felis catus")
+
+# or 
+
+#file.path <- getGenome(db = "refseq", organism = "9685")
+```
+
+```{r}
+# Display the genome.
+(cat.genome <- read_genome(file.path, format = "fasta"))
+```
+
+### Question 2: 
+Find the allele names in the Applied Biosystem identifiler allelic ladder (from the `seqinr` library)
+
+### Answer 2:
+The simple solution is just to use 
+
+```{r}
+df <- data(identifiler)
+```
+
+Could also make a histogram of alleles per locus (an example found in the [documentation](https://cran.r-project.org/web/packages/seqinr/seqinr.pdf) of `seqinr`)
+
+```{r}
+op <- par(no.readonly = TRUE) # Used to reset settings later. 
+par(mar = c(3,8,4,2)+0.1)
+allcount <- unlist(lapply(identifiler, function(x) lapply(x, length)))
+barplot(allcount[order(allcount)], horiz = TRUE, las = 1,
+main = "Allele count per locus", col = "lightblue")
+par(op) # Reset the changed margin. 
+```
+
+
+### Question 3: 
+We have the [Uniprot](https://www.uniprot.org/) code of a human transcription factor: Q01196. We must (a) identify  the name of the protein; and (b) find molecular pathways where this protein is participating in both KEGG and REACTOME and compare them.
+
+### Answer 3:
+
+(a) identify  the name of the protein.
+```{r}
+#Let's convert the uniprot code to the name of the protein:
+prot<-c("Q01196")
+ConvertID(prot, ID_from = "ACC+ID" , ID_to = "GENEWIKI_ID", directorypath = NULL)
+```
+
+The protein is named RUNX1. 
+
+(b) find molecular pathways where this protein is participating, in both KEGG and REACTOME and compare them;
+
+First, we will search in KEGG. 
+
+```{r, results='F', fig.show='hide'}
+#First, we look in KEGG database. We set the p-value at 0.75, to obtain a higher number of processes.
+Enrichment.KEGG(prot,OS="hsapiens",p_value=0.75,directorypath=".") # Saving the image and displaying in markdown instead. 
+```
+
+![](`r dirname(rstudioapi::getSourceEditorContext()$path)`/Enrichment KEGG.jpeg)
+
+
+RUNX1 seems to be participating in the following molecular pathways: transcriptional misregulation in cancer, tight junction, th17 cell differentiation, and specially in both chronic and acute myeloid leukemia.
+
+Now, we will search in REACTOME. 
+
+```{r, fig.show = "hide"}
+#First, we look in KEGG database. We set the p-value at 0.75, to obtain a higher number of processes.
+Enrichment.REAC(prot,OS="hsapiens",p_value=0.75,directorypath=".") # Saving the image and displaying in markdown instead. 
+```
+
+![](`r dirname(rstudioapi::getSourceEditorContext()$path)`/Enrichment REAC.jpeg)
+
+It can be observed that REACTOME includes much more RUNX1-related pathways than KEGG database. Pathways included in REACTOME appear to be more specific and give us more information about the molecular process. RUNX1 is particularly contributing in cell differentation-related pathways, in some signallings, but also in pathways associated to inflammation. KEGG pathways are general cellular processes, even whole diseases (AML).
