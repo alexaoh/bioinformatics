@@ -3,8 +3,11 @@ title: "Análisis de una secuencia (Task 1)"
 author: "Alexander J Ohrt (Alex-Alex-Helena)"
 date: '`r format(Sys.Date(),"%e %B, %Y")`'
 output: 
-  html_document
-  #pdf_document
+  html_document:
+    toc: false
+  pdf_document: 
+    toc: false
+    latex_engine: xelatex
 params:
   path: "/home/ajo/gitRepos/bioinformatics/Task1"
   name_fasta: "gi32141095_N_1.fa"
@@ -12,29 +15,28 @@ params:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, comment = "#>", warning = F)
-library(Biostrings)
+
+# Installs packages that have not been installed on the system automatically. 
+# https://stackoverflow.com/questions/9341635/check-for-installed-packages-before-running-install-packages
+packages <- c("Biostrings")
+install.packages(setdiff(packages, rownames(installed.packages())))  
+
+# Import packages listed in the 'packages' variable above. 
+# https://stackoverflow.com/questions/8175912/load-multiple-packages-at-once
+lapply(packages, require, character.only = TRUE)
 ```
 
 Este es el primer análisis dinámico de una secuencia.
 
 El fichero de entrada es cualquier secuencia con formato fasta con un tamaño máximo de la secuencia de una linea. Por tanto, el fichero fasta ocupa siempre dos lineas.
 
-<!-- Could use read.fasta() to read the file (from seqinr library), but we were asked to use base R here. -->
-
-```{r, echo = F}
-filepath <- paste(params$path, params$name_fasta, sep = "/")
-```
-
 La secuencia leida del fichero **`r params$name_fasta`** es:
 
 ```{r, echo = F}
+# the pdf engine cannot render this output because of the characters in the DNA table. Not sure if this can be fixed. 
+filepath <- paste(params$path, params$name_fasta, sep = "/")
 (DNA <- readDNAStringSet(filepath))
-#sequence <- lines[2]
-#spl <- strsplit(sequence, split = "")[[1]]
 ```
-
-<!-- I think there exists packages for this count also, but done quick and dirty below -->
-
 La longitud de la secuencia es de *`r width(DNA)`* bases. Estan repartidas como:
 
 * **Adeninas** (A): `r vcountPattern("A", DNA)`

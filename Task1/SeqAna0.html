@@ -166,18 +166,17 @@ pre code {
 
 <h1 class="title toc-ignore">Análisis de una secuencia (Task 1)</h1>
 <h4 class="author">Alexander J Ohrt (Alex-Alex-Helena)</h4>
-<h4 class="date">25 september, 2021</h4>
+<h4 class="date">7 oktober, 2021</h4>
 
 </div>
 
 
 <p>Este es el primer análisis dinámico de una secuencia.</p>
 <p>El fichero de entrada es cualquier secuencia con formato fasta con un tamaño máximo de la secuencia de una linea. Por tanto, el fichero fasta ocupa siempre dos lineas.</p>
-<!-- Could use read.fasta() to read the file (from seqinr library), but we were asked to use base R here. -->
 <p>La secuencia leida del fichero <strong>gi32141095_N_0.fa</strong> es:</p>
-<pre><code>#&gt; [1] &quot;&gt;gi|32141095:c685095-684409 Streptomyces coelicolor A3(2) chromosome, complete genome (trozo)&quot;
-#&gt; [2] &quot;ATGACTTGTCATGATCGCGCCAAAATTCAACTCGCCGGAAGGGCCCGACGGGCGACGACCCTCGTCCTCA&quot;</code></pre>
-<!-- I think there exists packages for this count also, but done quick and dirty below -->
+<pre><code>#&gt; DNAStringSet object of length 1:
+#&gt;     width seq                                                                               names               
+#&gt; [1]    70 [48;5;217m[30mA[39m[49m[48;5;223m[30mT[39m[49m[48;5;159m[30mG[39m[49m[48;5;217m[30mA[39m[49m[48;5;157m[30mC[39m[49m[48;5;223m[30mT[39m[49m[48;5;223m[30mT[39m[49m[48;5;159m[30mG[39m[49m[48;5;223m[30mT[39m[49m[48;5;157m[30mC[39m[49m[48;5;217m[30mA[39m[49m[48;5;223m[30mT[39m[49m[48;5;159m[30mG[39m[49m[48;5;217m[30mA[39m[49m[48;5;223m[30mT[39m[49m[48;5;157m[30mC[39m[49m[48;5;159m[30mG[39m[49m[48;5;157m[30mC[39m[49m[48;5;159m[30mG[39m[49m[48;5;157m[30mC[39m[49m[48;5;157m[30mC[39m[49m[48;5;217m[30mA[39m[49m[48;5;217m[30mA[39m[49m[48;5;217m[30mA[39m[49m[48;5;217m[30mA[39m[49m[48;5;223m[30mT[39m[49m[48;5;223m[30mT[39m[49m[48;5;157m[30mC[39m[49m[48;5;217m[30mA[39m[49m[48;5;217m[30mA[39m[49m[48;5;157m[30mC[39m[49m[48;5;223m[30mT[39m[49m[48;5;157m[30mC[39m[49m[48;5;159m[30mG[39m[49m[48;5;157m[30mC[39m[49m[48;5;157m[30mC[39m[49m[48;5;159m[30mG[39m[49m[48;5;159m[30mG[39m[49m[48;5;217m[30mA[39m[49m[48;5;217m[30mA[39m[49m[48;5;159m[30mG[39m[49m[48;5;159m[30mG[39m[49m[48;5;159m[30mG[39m[49m[48;5;157m[30mC[39m[49m[48;5;157m[30mC[39m[49m[48;5;157m[30mC[39m[49m[48;5;159m[30mG[39m[49m[48;5;217m[30mA[39m[49m[48;5;157m[30mC[39m[49m[48;5;159m[30mG[39m[49m[48;5;159m[30mG[39m[49m[48;5;159m[30mG[39m[49m[48;5;157m[30mC[39m[49m[48;5;159m[30mG[39m[49m[48;5;217m[30mA[39m[49m[48;5;157m[30mC[39m[49m[48;5;159m[30mG[39m[49m[48;5;217m[30mA[39m[49m[48;5;157m[30mC[39m[49m[48;5;157m[30mC[39m[49m[48;5;157m[30mC[39m[49m[48;5;223m[30mT[39m[49m[48;5;157m[30mC[39m[49m[48;5;159m[30mG[39m[49m[48;5;223m[30mT[39m[49m[48;5;157m[30mC[39m[49m[48;5;157m[30mC[39m[49m[48;5;223m[30mT[39m[49m[48;5;157m[30mC[39m[49m[48;5;217m[30mA[39m[49m            gi|32141095:c6850...</code></pre>
 <p>La longitud de la secuencia es de <em>70</em> bases. Estan repartidas como:</p>
 <ul>
 <li><strong>Adeninas</strong> (A): 16</li>
