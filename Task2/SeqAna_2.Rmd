@@ -43,7 +43,7 @@ count <- alphabetFrequency(DNA)[, c(1,2,3,4)]
 #accession.number = strsplit(names(DNA), split = "|", fixed = T)
 #names <- paste(accession.number[,1], accession.number[,2], sep = "|")
 # Tried to select only the two first names (separated by pipes), but could not get the dimensions to work in the df.
-df <- cbind(Accession.number = names(DNA), count, Total = rowSums(count))
+accession.number <- lapply(names(DNA), substr, 1, 30) # Quick fix (only select the first 30 letters). At least it works with the example given. 
+df <- cbind(Accession.number = accession.number, count, Total = rowSums(count))
 knitr::kable(df, caption = "Contaje de las bases nitrogenadas de cada registro")
 ```
-

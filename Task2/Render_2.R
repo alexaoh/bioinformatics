@@ -10,5 +10,5 @@ render.report = function(path, fasta_name, output_filename, output_fileformat){
   )
 }
 
-render.report("/home/ajo/gitRepos/bioinformatics/Task2", "ENSG00000114374.fa", "SeqAna_2_ENSG00000114374", "all")
-
+render.report("/home/ajo/gitRepos/bioinformatics/Task2", "ENSG00000114374.fa", "SeqAna_2_ENSG00000114374", "pdf")
+render.report("/home/ajo/gitRepos/bioinformatics/Task2", "ENSG00000114374.fa", "SeqAna_2_ENSG00000114374", "html")
