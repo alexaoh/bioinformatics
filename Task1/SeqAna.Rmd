@@ -5,6 +5,7 @@ date: '`r format(Sys.Date(),"%e %B, %Y")`'
 output: 
   html_document:
     toc: false
+    keep_md: no
   pdf_document: 
     toc: false
     latex_engine: xelatex
@@ -35,7 +36,10 @@ La secuencia leida del fichero **`r params$name_fasta`** es:
 ```{r, echo = F}
 # the pdf engine cannot render this output because of the characters in the DNA table. Not sure if this can be fixed. 
 filepath <- paste(params$path, params$name_fasta, sep = "/")
-(DNA <- readDNAStringSet(filepath))
+DNA <- readDNAStringSet(filepath)
+as.character(DNA)
+#names(DNA)
+#toString(DNA)
 ```
 La longitud de la secuencia es de *`r width(DNA)`* bases. Estan repartidas como:
 
