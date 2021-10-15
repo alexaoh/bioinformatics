@@ -25,6 +25,16 @@ install.packages(setdiff(packages, rownames(installed.packages())))
 # Import packages listed in the 'packages' variable above. 
 # https://stackoverflow.com/questions/8175912/load-multiple-packages-at-once
 lapply(packages, require, character.only = TRUE)
+
+# Professor used this to print in "fasta format" below. 
+str_break = function(x, width = 80L) {
+  n = nchar(x)
+  if (n <= width) return(x)
+  n1 = seq(1L, n, by = width)
+  n2 = seq(width, n, by = width)
+  if (n %% width != 0) n2 = c(n2, n)
+  substring(x, n1, n2)
+}
 ```
 
 Este es el primer análisis dinámico de una secuencia.
@@ -35,11 +45,11 @@ La secuencia leida del fichero **`r params$name_fasta`** es:
 
 ```{r, echo = F}
 # the pdf engine cannot render this output because of the characters in the DNA table. Not sure if this can be fixed. 
-filepath <- paste(params$path, params$name_fasta, sep = "/")
+filepath <- paste(params$path, params$name_fasta, sep = "/") # Should use file.path here as well. 
 DNA <- readDNAStringSet(filepath)
-as.character(DNA)
-#names(DNA)
-#toString(DNA)
+
+cat(paste0( ">", names(DNA)), 
+    str_break(toString(DNA)), sep="\n")
 ```
 La longitud de la secuencia es de *`r width(DNA)`* bases. Estan repartidas como:
 
