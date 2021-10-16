@@ -1,0 +1,134 @@
+---
+title: "Task3: Biostrings"
+author: "Alex-Alex-Helena"
+date: '`r format(Sys.Date(),"%e %B, %Y")`'
+output: 
+  html_document:
+    toc: false
+  pdf_document: 
+    toc: false
+    latex_engine: xelatex
+params:
+  gene_seq: "NC_000001.11.fasta"
+  start_vec: !r c(980, 1215, 1664, 1910, 2193, 2453)
+  end_vec: !r c(1108, 1539, 1825, 2101, 2374, 2596)
+  protein_seq: "NP_001091.1.fasta"
+  name_protein: "Actin, alpha skeletal muscle"
+  path_in: "/home/ajo/gitRepos/bioinformatics/Task3/Fastas"
+  path_out: "/home/ajo/gitRepos/bioinformatics/Task3/Reports"
+  showCode: FALSE
+---
+<!-- Adding some default values (for the params above), even though these will be passed via the render function. -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning = F, echo = params$showCode)
+
+# Installs packages that have not been installed on the system automatically. 
+# https://stackoverflow.com/questions/9341635/check-for-installed-packages-before-running-install-packages
+packages <- c("Biostrings")
+install.packages(setdiff(packages, rownames(installed.packages())))  
+
+# Import packages listed in the 'packages' variable above. 
+# https://stackoverflow.com/questions/8175912/load-multiple-packages-at-once
+lapply(packages, require, character.only = TRUE)
+
+# Professor used this to print in "fasta format".  
+str_break = function(x, width = 80L) {
+  n = nchar(x)
+  if (n <= width) return(x)
+  n1 = seq(1L, n, by = width)
+  n2 = seq(width, n, by = width)
+  if (n %% width != 0) n2 = c(n2, n)
+  substring(x, n1, n2)
+}
+```
+
+```{r, echo = F, results = "hide"}
+# the pdf engine cannot render this output because of the characters in the DNA table. Not sure if this can be fixed. 
+filepath <- file.path(params$path_in,params$gene_seq)
+seqDNA <- readDNAStringSet(filepath)
+
+```
+
+# Sequencia DNA
+
+El fichero fasta que se lee es *`r filepath`*.
+
+# Algunas características
+
+Nombre de la sequencia:
+
+```{r}
+cat(names(seqDNA))
+```
+
+Longitud de la secuencia: `r width(seqDNA)` pares de bases. 
+
+# Extracción de un segmento de la secuencia
+
+Se extraen desde las posiciones iniciales `r params$start_vec` hasta `r params$end_vec`, respectivamente. 
+
+La secuencia extraida es:
+
+```{r}
+at1 <- IRanges(start = params$start_vec, end = params$end_vec)
+gene <- extractAt(seqDNA,at1)
+
+# DNAStringSet.
+extraida <- toString(unlist(gene))
+
+# Cat the result with the function from the professor (to limit each line to the page size).
+cat(str_break(toString(extraida)), sep = "\n")
+```
+
+Este segmento tiene longitud: `r width(extraida)`.
+
+# Traducción a Proteina
+
+La traducción de la secuencia produce la siguiente proteina:
+
+```{r}
+# Coding Sequence (CDS): Protein
+CDS <- AAStringSet(translate(unlist(unlist(gene))))
+
+# eliminate stop codon
+CDS <- subseq(CDS, start = 1, end= width(CDS)-1)
+
+# Cat the result with the function from the professor (to limit each line to the page size).
+cat(str_break(toString(CDS)), sep = "\n")
+```
+
+Esta proteina tiene `r width(CDS)` aminoácidos.
+
+# Lectura de una proteina
+
+```{r}
+filepath2 <- file.path(params$path_in,params$protein_seq)
+seqAA <- readAAStringSet(filepath2)
+```
+
+El fichero fasta que se lee es *`r filepath2`*.
+
+# Algunas características
+
+Nombre de la proteina: 
+
+```{r}
+cat(params$name_protein)
+```
+
+Longitud de la secuencia: `r width(seqAA)` aminoácidos. 
+
+# Comprobación que la secuencia traducida corresponde a la secuencia leida
+
+```{r}
+check <- toString(seqAA) == toString(CDS)
+
+if (check){
+  aviso <- "La secuencia traducida corresponde a la secuencia leida"
+} else {
+  aviso <- "La secuencia traducida NO corresponde a la secuencia leida"
+}
+```
+
+AVISO: **`r aviso`**.
