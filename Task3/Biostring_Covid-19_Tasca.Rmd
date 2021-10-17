@@ -18,7 +18,7 @@ params:
   path_out: "/home/ajo/gitRepos/bioinformatics/Task3/Reports"
   showCode: FALSE
 ---
-<!-- Adding some default values (for the params above), even though these will be passed via the render function. -->
+<!-- Adding some default values (for the params above), even though these will be passed via the render function. Used when testing. -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(comment = NA, warning = F, echo = params$showCode)
