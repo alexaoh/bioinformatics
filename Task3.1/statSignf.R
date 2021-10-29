@@ -1,57 +1,91 @@
 # Create an R function to show the statistical significance of a pairwise alignment.
 
-statSignf <- function(seq1, seq2, kind.seq, kind.align, subst.matrix, gap.scores, num.shuffles, shuffle.seq, plot){
+statSignf <- function(seq1, seq2, kind.seq = "Protein", kind.align = "global", subst.matrix = "BLOSUM62", 
+                      gap.scores = c(3, 1), num.shuffles = 1000, shuffle.seq = 1, plot = TRUE){
+  
+  # I WILL USE THE TEXT BELOW TO MAKE THE docs/help-function when making the package later. 
+  # I will wait with making the package until you think the output from the function looks nice.
+  
   # Input parameters: 
-  # seq1: Sequence 1 in Fasta format.
-  # seq2: Sequence 2 in Fasta format.
-  # kind.seq: Kind of sequence: Protein or DNA.
-  # kind.align: Kind of pairwise alignment: “local” or “global”.
-  # subst.matrix: Substitution matrix: PAMn, BLOSUMn, etc.
-  # gap.scores: Gap score in vector format c(Open penalty, extended penalty).
-  # num.shuffles: Number of suffles.
-  # shuffle.seq: Sequence using for shuffling: 1 or 2.
-  # plot: boolean value. plot = TRUE plots histogram and Gumbel. plot = FALSE does not plot. 
+  # seq1: Sequence 1 in Fasta format (as a string). An example is shown below.
+  # seq2: Sequence 2 in Fasta format (as a string). An example is shown below. 
+  # kind.seq: Kind of sequence: "Protein" or "DNA". Default is "Protein".
+  # kind.align: Kind of pairwise alignment: “local” or “global”. Default is "global".
+  # subst.matrix: Substitution matrix: PAMn, BLOSUMn, etc. Default is "BLOSUM62"
+  # gap.scores: Gap score in vector format c(Open penalty, extended penalty). Default is c(3,1).
+  # num.shuffles: Number of shuffles. Default is 1000. 
+  # shuffle.seq: Sequence using for shuffling: 1 or 2. Default is 1. 
+  # plot: boolean value. plot = TRUE plots histogram and Gumbel. plot = FALSE does not plot. Default is TRUE. 
   
   # Output: 
   # Score of the original sequences. 
   # Histogram plot of scores obtained for the num.shuffles amount of permutations. 
   # p-value of the original score. 
   
+  # Example of sequence input.
+  # We will assume that the function takes the sequences in this type of format! (important with the newline).
+  #seq1 <- ">random sequence 1 consisting of 20 residues.
+  #  KMMIDIHWGMWWYEYMMCLD"
   
   # Should probably have some form of asserts on the input parameters. 
   
   # Load the dependencies inside function for now, not sure if this should be done when making the package. 
   library(seqinr)
   library(Biostrings)
-  library(evir) # Could use this to estimate a Gumbel, but will use the formulas given in the pdf in bioinfo-course. 
-  data(subst.matrix)
+  data(list = subst.matrix)
   
-  # I am assuming that the sequences already are in fasta format, such that I can use functions like "length" and "names".
-  # If this is not the case, I can use a "readDNAStringSet" here, to fix this, such that the rest of the program should work (hopefully).
+  # Split the fastas into one name-part and one sequence-part
+  string1.split <- strsplit(toString(AAStringSet(seq1)), "\n")[[1]]
+  string2.split <- strsplit(toString(AAStringSet(seq2)), "\n")[[1]]
   
-  m <- length(seq1)
-  n <- length(seq2)
+  # Get the name-part of the Fasta-string-inputs.
+  name1 <- string1.split[1] 
+  name2 <- string2.split[1]
   
-  # Should first calculate the score of the original sequences. 
-  OG.score <- pairwiseAlignment(AAString(seq1), AAString(seq1), substitutionMatrix = subst.matrix, 
-                                gapOpening = gap.scores[1], gapExtension = gap.scores[2], 
-                                scoreOnly = TRUE)
+  # Get the sequence part of the Fasta-string-inputs.
+  s1 <- string1.split[2]
+  s2 <- string2.split[2]
   
+  # Gets the length of the strings.
+  m <- nchar(s1)
+  n <- nchar(s2)
+  
+  if (kind.align == "global"){
+    OG.score <- pairwiseAlignment(s1, s2, substitutionMatrix = subst.matrix, 
+                                  gapOpening = gap.scores[1], gapExtension = gap.scores[2], 
+                                  scoreOnly = TRUE, type = "global")
+  } else {
+    OG.score <- pairwiseAlignment(s1, s2, substitutionMatrix = subst.matrix, 
+                                  gapOpening = gap.scores[1], gapExtension = gap.scores[2], 
+                                  scoreOnly = TRUE, type = "local")
+  }
   
   # This calculates scores with random permutations of one of the sequences, in order to analyse statistical significance. 
   scores <- rep(0, length.out = num.shuffles)
-  for (i in 1:num.shuffles){ # change the loop to a replicate() later (or an apply(), sapply() etc).
-    if (shuffle.seq = 1){
-      x <- sample(seq1, m, replace = F)
+  s1.splitted <- strsplit(s1,split="")[[1]] # Makes sampling possible. 
+  s2.splitted <- strsplit(s2,split="")[[1]] # Makes sampling possible. 
+  
+  for (i in 1:num.shuffles){ # should make this more efficient eventually, since it is very slow! Not now though. 
+    if (shuffle.seq == 1){
+      x <- paste(sample(s1.splitted, m, replace = F), collapse = "")
+      x2 <- s2
     } else { # shuffle.seq must be 2 - should or could be asserted earlier. 
-      x <- sample(seq2, n, replace = F)
+      x <- paste(sample(s2.splitted, n, replace = F), collapse = "")
+      x2 <- s1
     }
     
-    # Need to add an option for local or global alignment here as well!
-    scores[i] <- pairwiseAlignment(AAString(x), AAString(seq2),
-                        substitutionMatrix = subst.matrix, 
-                        gapOpening = gap.scores[1], gapExtension = gap.scores[2], 
-                        scoreOnly = TRUE)
+    if (kind.align == "global"){
+      scores[i] <- pairwiseAlignment(x, x2,
+                                     substitutionMatrix = subst.matrix, 
+                                     gapOpening = gap.scores[1], gapExtension = gap.scores[2], 
+                                     scoreOnly = TRUE, type = "global")
+    } else {
+      scores[i] <- pairwiseAlignment(x, x2,
+                                     substitutionMatrix = subst.matrix, 
+                                     gapOpening = gap.scores[1], gapExtension = gap.scores[2], 
+                                     scoreOnly = TRUE, type = "local")
+    }
+    
   }
   
   # Calculated mean and standard error of the scores. 
@@ -66,7 +100,7 @@ statSignf <- function(seq1, seq2, kind.seq, kind.align, subst.matrix, gap.scores
   K.hat <- exp(lambda.hat * u.hat)/(m*n)
   
   # Standardize the score. 
-  standard.score <- lambda.hat*OG.score - ln(K.hat*m*n)
+  standard.score <- lambda.hat*OG.score - log(K.hat*m*n)
   
   # p-value estimated from Gumbel.
   p.gumbel <- 1 - exp(-exp(-standard.score))
@@ -80,37 +114,83 @@ statSignf <- function(seq1, seq2, kind.seq, kind.align, subst.matrix, gap.scores
   
   if (plot){
     x <- seq(from = min(scores)-1, to = max(scores) + 1, along.with = scores) # make x-axis for Gumbel. 
-    hist(scores) # plot the histogram. 
-    lines(x, gumbel.dist(x), col = 2) # plot the estimated Gumbel alongside it. 
-    abline(x = OG.score, col = 3, lty = 2) # Add line for the original score on the plot. 
+    gumbel <- gumbel.dist(x) # Calculated Gumbel curve. 
+    hist(scores, freq = F, ylim = c(0, max(gumbel))) # plot the histogram. 
+    lines(x, gumbel, col = 1) # plot the estimated Gumbel alongside it. 
+    abline(v = OG.score, col = 2, lty = 2) # Add line for the original score on the plot. 
   }
   
   # Print the summary of the function (could be formatted more nicely later probably).
-  cat("The names of the sequences are ", names(seq1), " and ", names(seq2), ". \n")
-  cat("These sequences are of type ", kind.seq, ". \n")
-  cat("The type of alignment that has been done here is ", kind.align, ". \n")
-  cat("The substitution matrix used is ", subst.matrix, ". \n")
-  cat("The gap scores are ", gap.scores[1], " for open penalty and ", gap.scores[2], " for extended penalty. \n")
-  cat("The number of shuffles done are ", num.shuffles, ". \n")
-  if (shuffle.seq = 1){
+  cat("The names of the sequences are '", name1, "' and '", name2, "'. \n", sep = "")
+  cat("These sequences are of type '", kind.seq, "'. \n", sep = "")
+  cat("The type of alignment that has been done here is '", kind.align, "'. \n", sep = "")
+  cat("The substitution matrix used is '", subst.matrix, "'. \n", sep = "")
+  cat("The gap scores are -", gap.scores[1], " for open penalty and -", gap.scores[2], " for extended penalty. \n", sep = "")
+  cat("The number of shuffles done are ", num.shuffles, ". \n", sep = "")
+  if (shuffle.seq == 1){
     cat("The shuffling was done on the first sequence mentioned above. \n")
   } else { # Just as earlier, the other option for shuffle.seq has to be 2!
     cat("The shuffling was done on the second sequence mentioned above. \n")
   }
   
-  cat("The origian score is ", OG.score, ". \n")
-  cat("The parameters of the Gumbel distribution are ", expression(hat(lambda)), "=", lambda.hat, 
-            " and ", expression(hat(u)), "=", u.hat, ". \n")
-  cat("The p-value estimated using the estimated Gumbel distribution is ", p.gumbel, ". \n")
-  cat("The p-value estimated empirically by counting in the histogram is ", p.counted, ". \n")
+  cat("The original score is ", OG.score, ". \n", sep = "")
+  cat("The estimations of the parameters of the Gumbel distribution are: Scale parameter lambda = ", lambda.hat, 
+      " and mode u = ", u.hat, ". \n", sep = "")
+  cat("The p-value estimated using the estimated Gumbel distribution is ", p.gumbel, ". \n", sep = "")
+  cat("The p-value estimated empirically by counting in the histogram is ", p.counted, ". \n", sep = "")
   
   # Make a summary() function of the scores obtained by shuffling. 
   
-  cat("The estimated K is ", expression(hat(K)), "=", K.hat, ". \n")
-  cat("The standardized score is S' = ", standard.score, ". \n")
-  
-  # WHAT IS THE BEST MANNER IN TESTING THIS FUNCTION? HOW CAN I TEST IT (E.G WITH WHAT TYPE OF DATA)
-  # MAYBE I SHOULD USE THE EXAMPLE WE SAW IN CLASS (USE THE SAME PROTEINS), IN ORDER TO SEE THAT I GET
-  # THE SAME OUTPUT!
+  cat("The estimated K is ", K.hat, ". \n", sep = "")
+  cat("The standardized score is S' = ", standard.score, ". \n", sep = "")
   
 }
+
+#-----------------------------------------------------------------------------------------------------------#
+#TESTING.
+# Added some examples for proteins just to see that it works. These are some scenarios we could add in the DashBoard. 
+# Also added the system.time just to show how slow the function is.
+
+# We will assume that the function takes the sequences in this type of format! (important with the newline).
+seq1 <- ">random sequence 1 consisting of 20 residues.
+KMMIDIHWGMWWYEYMMCLD"
+
+seq2 <- ">random sequence 1 consisting of 20 residues.
+DVYRVCQNVFRYHHFCKRTI" 
+
+system.time(statSignf(seq1, seq2))
+
+seq1 <- ">non-random sequence 1 very similar to 2.
+KKKKKKKKKKRRRRNNRRLLLMMMNM"
+
+seq2 <- ">non-random sequence 2 very similar to 1.
+KKKKKKKKKKKRRRRRRLLLLMMMNN"
+
+system.time(statSignf(seq1, seq2, num.shuffles = 5000))
+
+seq1 <- ">random sequence 1 consisting of 500 residues.
+YWWCSKEWDHFPDVTTCTPSEQYPAWAMHNMILPNWQLAEMMQSYRYIPNIALPNHQLTK
+AHSMWAQHSMYVQRCCETKDLLFNDDTSQDKAYPFKQMESNHHITNEFPNKCKILTSVKH
+ATLWNLQALGCCKDPCRSNKFHKKLNIDIHCSPGWTGWNAQYSSPGPFCWEPKTVNYSWF
+RFKWHYFPCVHNIGSSRQCVWLRYFHLSSEQWKQGARGWVVVIFGACSGWYPWDNGQLYQ
+EKNIFCAGKGQCATDQYFNYLWSWMISAGWAVYPYDECVTRTVISLFEVAYYFRHPYMWH
+NITIMLRNETLPAVTQCVLETLHTHYCLALWLEEMYPCTDEGYNRKTPGDTHVQDCAFFS
+ESHKHDVKTNWVGSDSINYNPGSVMWKICDHLGAGMYGRPTPADWSQSIITNHICCGDAS
+HCGEQWCAVNNDSVSTMISQFQTSEWAHPIVINQHGIEPDMSWGELARVLTQNPGLGQQN
+TIRMKTFYRKFFPCMYFNFQ"
+
+seq2 <- ">random sequence 1 consisting of 500 residues.
+FWMLVNRLCQDTGWEYADCRPDHGNESRMMYKDCFYHITDPAEATVFPIESFCQHLCSNF
+WSNTHWRIINYPPLHWKNYCGSAFWGRNYGEWSCFEDRMPFATEIETHSNPVFNDFQEAQ
+CNNQARKKNGWKVSAPQEAMPQGMMRLTWIFIHEMWGWFSWVWRLIQNQINEPGVKPLEL
+CSETQHGVFGWRDIAIMIRMEYKCDVLFMWLILCPCYYSDQFCKRIAAHQEAMRWKIAKT
+AWQFVGKIKGPKCRMLTERRQFACEVTEQACKRCLPHAVRHTGQSHKYHCTAFRPFTKIS
+VAYGVEIGESFFFQWYWQFRFSFATAWAISNWGQGWSLCIEEVNWNDIKEHFTFTTKIML
+VFTENFTEHSQEIFDSLMDHGPDHKVSIIARQMVACQIWITHKMGCCHDGLLYTPTHDWF
+LQVRVPCFFQWVEGWNGIEDDIPGHVRMNSMTSWLNKPLASRILLDIYIMTWDNRWFKWD
+KTWMVVGHNIHDAWSFENVK"
+
+system.time(statSignf(seq1, seq2, num.shuffles = 5000))
+system.time(statSignf(seq1, seq2, num.shuffles = 5000, subst.matrix = "PAM30"))
+system.time(statSignf(seq1, seq2, num.shuffles = 5000, shuffle.seq = 2))
+system.time(statSignf(seq1, seq2, num.shuffles = 5000, kind.align = "local"))
