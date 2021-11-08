@@ -1,0 +1,10 @@
+Package: StatSignfPairSeqAlign
+Type: Package
+Title: Evaluate Statistical Significance of a Pairwise Aligment of Sequences. 
+Version: 0.1.0
+Author: Alex-Alex-Helena
+Maintainer: The package maintainer <alexander.johansen.ohrt@estudiantat.upc.edu>
+Description: The package contains a function to show the statistical significance of a pairwise alignment of sequences. 
+License: MIT
+Encoding: UTF-8
+LazyData: true
