@@ -1,0 +1,210 @@
+---
+title: "Statistical Significance of a Pairwise Alignment of Sequences"
+author: "Alex-Alex-Helena"
+date: "10.11.2021"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: menu
+    source_code: embed
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(StatSignfPairSeqAlign)
+```
+
+Simple Example
+====================================================================================================================================
+
+### Output {data-width=450}
+
+```{r}
+seq1 <- ">random sequence 1 consisting of 20 residues.
+KMMIDIHWGMWWYEYMMCLD"
+
+seq2 <- ">random sequence 1 consisting of 20 residues.
+DVYRVCQNVFRYHHFCKRTI"
+
+out <- statSignf(seq1, seq2)
+```
+
+### Plot {data-width=550}
+
+```{r}
+out()
+```
+
+Local Alignment
+====================================================================================================================================
+
+### Output {data-width=450}
+
+```{r}
+seq1 <- ">random sequence 1 consisting of 20 residues.
+KMMIDIHWGMWWYEYMMCLD"
+
+seq2 <- ">random sequence 1 consisting of 20 residues.
+DVYRVCQNVFRYHHFCKRTI"
+
+out <- statSignf(seq1, seq2, num.shuffles = 3000,
+      subst.matrix = "BLOSUM45", kind.align = "local")
+```
+
+### Plot {data-width=550}
+
+```{r}
+out()
+```
+
+Non-random Sequences
+====================================================================================================================================
+
+### Output {data-width=450}
+
+```{r}
+seq1 <- ">non-random sequence 1 very similar to 2.
+KKKKKKKKKKRRRRNNRRLLLMMMNM"
+
+seq2 <- ">non-random sequence 2 very similar to 1.
+KKKKKKKKKKKRRRRRRLLLLMMMNN"
+
+out <- statSignf(seq1, seq2, num.shuffles = 2000,
+      subst.matrix = "BLOSUM100", shuffle.seq = 2, gap.scores = c(8, 2))
+```
+
+### Plot {data-width=550}
+
+```{r}
+out()
+```
+
+
+Longer Sequences
+====================================================================================================================================
+
+Column {.sidebar data-width=700}
+-------------------------------------
+### Output
+```{r}
+out <- statSignf(seq1, seq2,
+      subst.matrix = "PAM250", kind.align = "local")
+```
+
+Row {data-height=310}
+-------------------------------------
+### Sequence 1
+```{r}
+seq1 <- ">random sequence 1 consisting of 500 residues.
+YWWCSKEWDHFPDVTTCTPSEQYPAWAMHNMILPNWQLAEMMQSYRYIPNIALPNHQLTK
+AHSMWAQHSMYVQRCCETKDLLFNDDTSQDKAYPFKQMESNHHITNEFPNKCKILTSVKH
+ATLWNLQALGCCKDPCRSNKFHKKLNIDIHCSPGWTGWNAQYSSPGPFCWEPKTVNYSWF
+RFKWHYFPCVHNIGSSRQCVWLRYFHLSSEQWKQGARGWVVVIFGACSGWYPWDNGQLYQ
+EKNIFCAGKGQCATDQYFNYLWSWMISAGWAVYPYDECVTRTVISLFEVAYYFRHPYMWH
+NITIMLRNETLPAVTQCVLETLHTHYCLALWLEEMYPCTDEGYNRKTPGDTHVQDCAFFS
+ESHKHDVKTNWVGSDSINYNPGSVMWKICDHLGAGMYGRPTPADWSQSIITNHICCGDAS
+HCGEQWCAVNNDSVSTMISQFQTSEWAHPIVINQHGIEPDMSWGELARVLTQNPGLGQQN
+TIRMKTFYRKFFPCMYFNFQ"
+```
+
+### Sequence 2
+```{r}
+seq2 <- ">random sequence 1 consisting of 500 residues.
+FWMLVNRLCQDTGWEYADCRPDHGNESRMMYKDCFYHITDPAEATVFPIESFCQHLCSNF
+WSNTHWRIINYPPLHWKNYCGSAFWGRNYGEWSCFEDRMPFATEIETHSNPVFNDFQEAQ
+CNNQARKKNGWKVSAPQEAMPQGMMRLTWIFIHEMWGWFSWVWRLIQNQINEPGVKPLEL
+CSETQHGVFGWRDIAIMIRMEYKCDVLFMWLILCPCYYSDQFCKRIAAHQEAMRWKIAKT
+AWQFVGKIKGPKCRMLTERRQFACEVTEQACKRCLPHAVRHTGQSHKYHCTAFRPFTKIS
+VAYGVEIGESFFFQWYWQFRFSFATAWAISNWGQGWSLCIEEVNWNDIKEHFTFTTKIML
+VFTENFTEHSQEIFDSLMDHGPDHKVSIIARQMVACQIWITHKMGCCHDGLLYTPTHDWF
+LQVRVPCFFQWVEGWNGIEDDIPGHVRMNSMTSWLNKPLASRILLDIYIMTWDNRWFKWD
+KTWMVVGHNIHDAWSFENVK"
+```   
+
+Row {data-height=690}
+-------------------------------------
+### Plot
+```{r}
+out()
+```
+
+DNA
+====================================================================================================================================
+
+Column {.sidebar data-width=650}
+-------------------------------------
+### Output
+```{r}
+out <- statSignf(seq1, seq2, kind.seq = "DNA", gap.scores = c(8, 2), 
+                 num.shuffles = 200)
+```
+
+Row {data-height=450}
+-------------------------------------
+### Sequence 1
+```{r}
+seq1 <- ">random sequence 1 consisting of 800 bases.
+ctattggccgttggaggggaagtgtatcgactcgtcaagcgctctaatgagaaaccggct
+tactcgccctcttatgatccttgacaagcgtctgactccgcaaggatcccgggctgaggg
+ctacacccacctcgtttttagttttttaacagcagaaatcagcccgacgaagaacgagga
+aggttctattaagagccgacggatccgaagaacacgtggtccctgacccttagaaccgat
+tcgcgggctaaaaagcaacacgcttcgacccgatctgtcgcattgaattgaaacgcccct
+ttattgtagctactaaccaggcttccttatagctattagcagggctggaagtgcggattc
+actctaagacggtcacagctcatcagctcccctgcctgtagctgaacgtaccaatatctg
+caagtaacaaccttgagtaccgtaagactgtaaaaatcttcgattccgcattatagggca
+aggctaacgcatttccgccaaaggagaatgaggttgttgcattcccgtgagtgaaaggtc
+ttagaaaacaagttcgatgcgcaggaggttcagattctgttccccccgtcgcgccgcgcc
+tcaaaacccggtaccttcgcaaggagcccccagactctatggctaatcacttgtttgcaa
+gaggctctgatccaaatgacatcaacctaacgcacaaagctgaccgaatataaacgattt
+tctagcatatcgcgttttaattcgctagctgcagctttcgcatccgtcgccgctttaggc
+ggggcgaacatcctgacccg"
+```
+
+### Sequence 2
+```{r}
+seq2 <- ">random sequence 1 consisting of 800 bases.
+gagtgttttcattagcatccgcttagcatgggggtatgctgtactagtagacgtcagaga
+taaggactggtcataattcaaggcgccgccatactaatgttagccttgttaatgactaat
+aaatcctccccggaaatccataacaacgaagcctcgcgattacccgcaacgagaaaaact
+caataaagggaaggcagacaaatgtatgcagatagtgcatgttctgcgaacactccacgt
+atttgaacatataatcctaaaggtgtgttacccgagacactccgtccactctcgtcggta
+acataagggtcgtcttttagtaacttccagcggtcatactaacaggctcatcgcactggt
+agattctgtgcgggtaaacgcattatagacttgtgtcgagcccccggtgctggcgaattg
+tccgcaggggcgacaggagtcaaaacgtgcttgaacaagaccgaacctatgtccttctga
+gacgggatctccaatcgccccactgcggagcccctggcaccgcttatgccctagcagtca
+ctgtacaaaacctatagccgtgccaccactcagcccgtctacggctgcaccgctactcaa
+gtcccgagactcacgctgctcgaactgccttactctggtcaatagagcttaggaacctgt
+gtaacggcatgcgttctgtgttagttaaatcgtgacatggcgcccaagcacagtcataat
+tattgaaagttatctacatgggatgatgagcactgagggacgcaccgcgcctttatccat
+ctatgccgcggcccgttcca"
+```   
+
+Row {data-height=550}
+-------------------------------------
+### Plot
+```{r}
+out()
+```
+
+Suppress Output and Plotting
+====================================================================================================================================
+
+### Output {data-width=500}
+
+```{r}
+seq1 <- ">random sequence 1 consisting of 20 residues.
+KMMIDIHWGMWWYEYMMCLD"
+
+seq2 <- ">random sequence 1 consisting of 20 residues.
+DVYRVCQNVFRYHHFCKRTI"
+
+out <- statSignf(seq1, seq2,
+       plot = F, suppress.output = T)
+```
+
+### Plot {data-width=500}
+
+```{r}
+# out() gives an error, since 'out' is no longer a function. 
+out
+```

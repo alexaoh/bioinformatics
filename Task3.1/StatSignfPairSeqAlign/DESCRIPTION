@@ -8,3 +8,4 @@ Description: The package contains a function to show the statistical significanc
 License: MIT
 Encoding: UTF-8
 LazyData: true
+Imports: seqinr, Biostrings

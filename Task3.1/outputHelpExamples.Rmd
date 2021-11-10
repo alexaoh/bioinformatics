@@ -1,0 +1,41 @@
+---
+title: "Statistical Significance of a Pairwise Alignment of Sequences."
+author: "Alex-Alex-Helena"
+date: "10.11.2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning = F}
+library(StatSignfPairSeqAlign)
+help(statSignf)
+```
+
+# Output from Examples in help()-file
+
+```{r}
+## Two random sequences in the specified format.
+seq1 <- ">random sequence 1 consisting of 20 residues.
+KMMIDIHWGMWWYEYMMCLD"
+seq2 <- ">random sequence 1 consisting of 20 residues.
+DVYRVCQNVFRYHHFCKRTI"
+
+# Simple alignment. Only output in text.
+statSignf(seq1, seq2, plot = F)
+
+# More specific alignment. Only output in text.
+statSignf(seq1, seq2, num.shuffles = 500, plot = F,
+      subst.matrix = "PAM30", kind.align = "local")
+
+# Simple alignment. Output in text and plot.
+out <- statSignf(seq1, seq2, plot = T)
+out() # Uses the returned function to plot the results.
+
+# Simple alignment. Suppress output in text, only plot.
+out <- statSignf(seq1, seq2, plot = T, suppress.output = T)
+out() # Uses the returned function to plot the results.
+```
+
