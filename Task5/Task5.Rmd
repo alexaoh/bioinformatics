@@ -1,0 +1,265 @@
+---
+title: "Task 5"
+author: "Alex, Alex and Helena"
+date: "11/24/2021"
+output:
+  html_document: default
+  #pdf_document: default
+params:
+  show_code: FALSE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = params$show_code, warning = FALSE, comment = NA)
+library(Biostrings)
+library(stringr)
+```
+
+The file *MA00081.sites.fasta* contains **25 sequences** with a **regulating factor of the HOMEO family** in *Arabidopsis thaliana*. The regulation factor in each sequence is indicated in capital letters, thus in the first sequence it is CAATTATT. The different tasks to be carried out are presented below:
+
+1. Extract the subsequence with capital letters from each sequence and align them all.
+2. Perform the representation of the multiple alignment as a logo sequence. Can be done with R with the seqLogo package (bioconductor). Discuss the results.
+3. Create the absolute frequency matrix. Present the consensus sequence. Is there the consensus sequence between the original sequences?
+4. Obtain the matrix of relative frequencies and calculate KL divergence.
+5. Calculate thew log likelihood for each of the 25 subsequences displayed in uppercase.
+6. Choose a complete sequence of the 25, that is, with 15 nucleotides, and represent graphically the log of the PSSM plausibility when moving through the entire sequence (see fig 10.1 "Introduction to Computational Genomics. A case studies approach" of N.Cristianini & M.W. Hann)
+7. Write three sequences where the PSSM matrix has a low score, that is, the sequences are negative from the point of view that the PSSM matrix represents a discriminator.
+
+### 1. Extract the subsequence with capital letters from each sequence and align them all.
+Our file provides a list of 25 sequences. Let us see how the sequences look when we read the file:
+```{r}
+fasta <-"MA0008.1.sites.fasta"
+sequences <- readLines(fasta)
+print(sequences)
+```
+
+```{r, include = FALSE}
+a <- matrix(nrow=25, ncol=8)
+n<- 1
+for (i in 1:25){
+  for(j in strsplit(sequences[2*i], "")[[1]]){
+    if(any(j == LETTERS )){
+      a[i,n] <- j
+      n <- n+1
+    }
+   
+  }
+  n <- 1
+}
+```
+
+The regulatory regions (or promoters), which are in capital letters in the original fasta file are the following (shown in table):
+```{r}
+promoters <- rep(0,25)
+for(i in 1:25){
+  promoters[i] <- paste(a[i,], collapse="")
+}
+
+promoters <- as.vector(promoters)
+rownames <- seq(1,25,1)
+knitr::kable(promoters, row.names = rownames, col.names = c("Regulatory sequence"))
+```
+
+### 2. Perform the representation of the multiple alignment as a logo sequence. Can be done with R with the seqLogo package (bioconductor). Discuss the results.
+Here, we show the multiple alignment as a logo sequence of the 25 sequences.
+
+```{r, out.width="50%", fig.align = 'center'}
+library(ggseqlogo)
+logo <- ggseqlogo(promoters)
+print(logo)
+```
+
+It can be observed that this regulatory region is pretty similar and follows a pattern in the 25 sequences. There is a notable predominance of a specific nucleotide in mostly all positions, with exception of the first one. We could read that the motif would be XAATTATT. In the first position, there is no nucleotide substantially appearing with more frequency than the rest.
+
+### 3. Create the absolute frequency matrix. Present the consensus sequence. Is there the consensus sequence between the original sequences?
+The absolute frequency matrix is basically obtained by counting the frequencies of nucleotide in each position. In this case, the frequency matrix would be like this:
+```{r}
+freq <- matrix(NA,nrow=4, ncol=8)
+
+for(i in 1:8){
+  freq[1,i] <- table(a[,i])["A"][[1]]
+  freq[2,i] <- table(a[,i])["C"][[1]]
+  freq[3,i] <- table(a[,i])["G"][[1]]
+  freq[4,i] <- table(a[,i])["T"][[1]]
+}
+
+freq[is.na(freq) ] <- 0
+rownames(freq) <- c("A", "C", "G", "T")
+freq
+```
+The consensus sequence is a new sequence formed by the most frequent letter used at each position. Therefore, observing the frequency matrix, we would suggest that the consensus sequence is: CAATTATT.
+This sequence is found in the first 8 sequences of our sample.
+
+### 4. Obtain the matrix of relative frequencies and calculate KL divergence.
+Since we are estimating a probability based on a small sample, and it is quite possible that we never observe symbols that have small probability, we will add what is called a **pseudocount** to each entry of the matrix. This way, we are making the probabilities unlikely but not impossible. 
+
+Hence, the relative frequency matrix is obtained by adding 1 and dividing by the total of characters in each position:
+```{r}
+rel.freq <- round((freq+1)/(25+4),2)
+rel.freq ##es la PMSS
+```
+
+The KL divergence measures how different the motif is from the background distribution, which we assume is uniform in the PSSM. This number is calculated using the equation given in page 165 in Cristianini \& Hann's "Introduction to Computational Genomics. A case studies approach".
+The value of the KL of this motif is
+
+```{r}
+KL <- 0
+for(i in 1:8){
+  for(j in 1:4){
+    KL = KL +rel.freq[j,i][[1]]* log(rel.freq[j,i][[1]] / 0.25)
+  }
+}
+
+KL
+```
+
+### 5. Calculate the log likelihood for each of the 25 subsequences displayed in uppercase.
+
+The way we interpret this problem is that we are asked calculate the log-likelihood for each of the 25 uppercase subsequences that we extracted in problem 1. 
+
+```{r}
+# Not sure which one of these they are asking for! Read through book tomorrow!
+# I think there is a mistake in the formula on page 166 in the book!
+# I will do as I think is correct in the following. 
+df <- rep(NA, length = 25)
+for (i in 1:25){
+  sequence <- strsplit(promoters[i], "")[[1]]
+  prods <- rep(NA, length = 8)
+  for (j in 1:8){
+    prods[j] <- rel.freq[sequence[j], j]
+  }
+  df[i] <- prod(prods)
+}
+
+# df <- rep(NA, length = 8)
+# for (i in 1:8){
+#   sequence <- 
+#   prods <- rep(NA, length = 25)
+#   for (j in 1:25){
+#     prods[j] <- rel.freq[substr(promoters[j], start = i, stop = i), i] 
+#   }
+#   df[i] <- prod(prods)
+# }
+
+df <- log(df)
+scores <- cbind("log likelihood" = df, "Promoters" = promoters)
+knitr::kable(scores)
+plot(1:25, df, type = "l", main = "Log likelihood scores of uppercase subsequences", xlab = "Sequence Number", ylab = "log likelihood score")
+```
+
+### 6. Choose a complete sequence of the 25, that is, with 15 nucleotides, and represent graphically the log of the PSSM plausibility when moving through the entire sequence (see fig 10.1 "Introduction to Computational Genomics. A case studies approach" of N.Cristianini & M.W. Hann)
+
+<!-- In order to solve this problem, we should calculate the PSSM for the set of complete sequences. We repeat the processes from problem 4, 5 and 6, but with the complete sequences in uppercase instead of the uppercase subsequences extracted in problem 1.  -->
+<!-- What I did initially above does not make sense! -->
+
+We select two different sequences for illustration purposes: the first and the third.
+
+```{r}
+complete.sequences.upper <- rep(NA, length=25)
+for (i in 1:25){
+  complete.sequences.upper[i] <- toupper(sequences[2*i])
+} # Convert sequences to uppercase.
+```
+
+
+First, we analyze the first sequence `r complete.sequences.upper[1]`.
+
+
+
+```{r}
+# This did not make sense, but keep it for now in case it becomes useful later. 
+# a2 <- matrix(NA,nrow=25, ncol=15)
+# 
+# # Shitty solution, but cannot think straight right now.
+# for (i in 1:25){
+#   vec <- strsplit(complete.sequences.upper[i], "")[[1]]
+#   for (j in 1:15){
+#     a2[i,j] <-  vec[j]
+#   }
+# }
+# 
+# freq.complete <- matrix(NA,nrow=4, ncol=15)
+# for(i in 1:15){
+#   freq.complete[1,i] <- table(a2[,i])["A"][[1]]
+#   freq.complete[2,i] <- table(a2[,i])["C"][[1]]
+#   freq.complete[3,i] <- table(a2[,i])["G"][[1]]
+#   freq.complete[4,i] <- table(a2[,i])["T"][[1]]
+# }
+# 
+# freq.complete[is.na(freq.complete)] <- 0
+# rownames(freq.complete) <- c("A", "C", "G", "T")
+# 
+# rel.freq.complete <- round((freq.complete+1)/(25+4),2)
+
+# I think the index in the product in the formula on page 166 in the book should start at i = j, not j = 1.
+calc.like <- function(sequence.index){
+  df.seq1 <- rep(NA, length = 15-8)
+  seq1 <- complete.sequences.upper[sequence.index]
+  seq1.vec <- strsplit(seq1, "")[[1]]
+  for (i in 1:(15-7)){
+    prods <- rep(NA, length = 8)
+    for(j in 1:8){
+      prods[j] <- rel.freq[seq1.vec[j+i-1], j] 
+    }
+    df.seq1[i] <- prod(prods)
+  }
+  return(log(df.seq1))
+}
+
+
+df.seq1 <- calc.like(1)
+par(las = 1, font = 2, font.axis = 2, font.lab = 4, xaxs = "i", yaxs = "i",
+    mar = c(5, 5, 4, 2), bty = "l", cex.lab = 1.5, cex.axis = 1.25)
+plot(1:8,df.seq1, main = "log of PSSM plausability when moving through sequence 1", type = "l", 
+     xlab = "Starting Positions", ylab = "Scores")
+axis(1, at = seq(1,15,1))
+```
+
+Next, we analyze the third sequence `r complete.sequences.upper[3]`.
+
+```{r}
+df.seq3 <- calc.like(3)
+par(las = 1, font = 2, font.axis = 2, font.lab = 4, xaxs = "i", yaxs = "i",
+    mar = c(5, 5, 4, 2), bty = "l", cex.lab = 1.5, cex.axis = 1.25)
+plot(1:8,df.seq3, main = "log of PSSM plausability when moving through sequence 3", type = "l", 
+     xlab = "Starting Positions", ylab = "Scores")
+axis(1, at = seq(1,15,1))
+```
+
+Just to check, let us concatenate all the strings and do the same exercise as in the book.
+
+```{r}
+# Concatenate all the strings.
+concatenated <- paste(complete.sequences.upper, collapse = "")
+calc.like.long <- function(sequence.string){
+  df.seq1 <- rep(NA, length = 15*25-8)
+  seq1 <- concatenated
+  seq1.vec <- strsplit(seq1, "")[[1]]
+  for (i in 1:((15*25)-7)){
+    prods <- rep(NA, length = 8)
+    for(j in 1:8){
+      prods[j] <- rel.freq[seq1.vec[j+i-1], j] 
+    }
+    df.seq1[i] <- prod(prods)
+  }
+  return(log(df.seq1))
+}
+df.concatenated <- calc.like.long(concatenated)
+par(las = 1, font = 2, font.axis = 2, font.lab = 4, xaxs = "i", yaxs = "i",
+    mar = c(5, 5, 4, 2), bty = "l", cex.lab = 1.5, cex.axis = 1.25)
+plot(1:(15*25-7),df.concatenated, main = "log of PSSM plausability when moving through collection", type = "l", 
+     xlab = "Starting Positions", ylab = "Scores")
+plot(1:(15*25-7),df.concatenated, main = "Sequence 1 Again", type = "l", 
+     xlab = "Starting Positions", ylab = "Scores", xlim = c(1,8))
+plot(1:(15*25-7),df.concatenated, main = "Sequence 3 Again", type = "l", 
+     xlab = "Starting Positions", ylab = "Scores", xlim = c(1+(15*2),8+(15*2)))
+```
+
+
+### 7. Write three sequences where the PSSM matrix has a low score, that is, the sequences are negative from the point of view that the PSSM matrix represents a discriminator.
+In order to create sequences with a low score, we should take those nucleotides that are a low probability to appear.
+For example, the sequences could be: AGCAACCC, AGGGGCGC and AGGCATCC.
+
+```{r}
+rel.freq
+```
