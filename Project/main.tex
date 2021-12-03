@@ -45,7 +45,7 @@ where the superscripts highlight an important point; the \textit{one-step transi
 \end{equation*}
 In a MC, the random variable $X$ can only take values from a pre-specified set called \textit{states}. We will concentrate on the simplest type of state space, which yields a so-called \textit{discrete-time} MC. This is the case when the set of states is finite or countable set and whose time index is $T = (0,1,2,\ldots)$. Thus, we have described the assumptions made when working with the simplest form of MC, which we call a \textit{discrete-state time-homogeneous first-order MC} \cite{Pinsky2011}. These lay the foundation of the Hidden Markov Models that we will study in the remainder of the report. 
 
-Let us define the notation that will be used in the remainder. First of all, let the random vector $\mathbf{X} = (X_0, X_1, \ldots, X_L)^T$ represent a MC of length $L+1$. In the following we will always assume that $\mathbf{X}$ is of finite length $L+1$. A realization of the random vector will be denoted in lower case, i.e. $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$, following standard notation in most probability or statistics courses. What exactly this means will become clear later. A discrete-time MC consists of a finite set of states, which will be denoted by $\mathcal{H} = \{h_1, \ldots, h_m\}$, where $m = \text{card}(\mathcal{H})$ are the amount of states in the model. Why the letter $\mathcal{H}$ is chosen will hopefully become clear when studying the Hidden Markov Models. The MC transitions between each of the states in $\mathcal{H}$, based on the set of \textit{transition probabilities}, which where denoted by $\text{P}_{ij}$ above. In the following, the notation $\mathcal{T}_{ij}$ will be adopted instead, for ease of recalling that they are transition probabilities. These are summarized in a $n \times n$-matrix $\mathcal{T}$, where each position $\mathcal{T}_{ij}$ represents the probability of a transition from state $i$ to state $j$, where $i, j \in \mathcal{H}$. Written in mathematical notation
+Let us define the notation that will be used in the remainder. First of all, let the random vector $\mathbf{X} = (X_0, X_1, \ldots, X_L)^T$ represent a MC of length $L+1$. In the following we will always assume that $\mathbf{X}$ is of finite length $L+1$. A realization of the random vector will be denoted in lower case, i.e. $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$, following standard notation in most probability or statistics courses. What exactly this means will become clear later. A discrete-time MC consists of a finite set of states, which will be denoted by $\mathcal{H} = \{h_1, \ldots, h_m\}$, where $m = \text{card}(\mathcal{H})$ are the amount of states in the model. Why the letter $\mathcal{H}$ is chosen will hopefully become clear when studying the Hidden Markov Models. The MC transitions between each of the states in $\mathcal{H}$, based on the set of \textit{transition probabilities}, which where denoted by $\text{P}_{ij}$ above. In the following, the notation $\mathcal{T}_{ij}$ will be adopted instead, for ease of recalling that they are transition probabilities. These are summarized in a $m \times m$-matrix $\mathcal{T}$, where each position $\mathcal{T}_{ij}$ represents the probability of a transition from state $i$ to state $j$, where $i, j \in \mathcal{H}$. Written in mathematical notation
 
 \begin{equation*}
         \mathcal{T}_{ij} = \text{P}(X_{t+1} = j|X_{t} = i), \hspace{0.5em} i,j \in \mathcal{H}. 
@@ -57,14 +57,14 @@ As noted, the term \textit{time-homogeneous} refers to the fact that $\mathcal{T
 \end{equation*}
 Moreover, the term \textit{first-order} refers to an important assumption in this model, which makes it possible to define $\mathcal{T}$ as we did, which is that the transition probability from the previous state to the current state only depends on the previous state. For example, a time-homogeneous second-order MC would depend on the two previous states when transitioning to the current state, which makes the model more general, but also more complicated. Note that the initial state of a MC is determined based on the initial distribution of the states, commonly denoted by $\pi = (\pi_1, \ldots, \pi_n)$. The assumptions make calculations of probabilities in the MCs very simple, since they are strong independence assumptions. 
 
-A MC is completely specified by $\pi$ and $\mathcal{T}$ (where $\mathcal{H}$ is indirectly given in both these two quantities). Once these quantities are specified, one can make calculations concerning the MC. The probability of a realization $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$ taking place can be calculated recursively as
+A MC is completely specified by $\pi$ and $\mathcal{T}$ (where $\mathcal{H}$ is indirectly given in both these two quantities). Once these quantities are specified, one can make calculations concerning the MC. The probability of a realization $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$ taking place can be calculated recursively as 
 
 \begin{align*}
     \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_L = x_L) &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots X_{L-1} = x_{L-1})\\ 
     &\cdot\text{P}(X_L = x_L|X_0 = x_0, X_1 = x_1, \ldots X_{L-1} = x_{L-1}) \\ 
     &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots X_{L-1} = x_{L-1})\\&\cdot\text{P}(X_L = x_L|X_{L-1} = x_{L-1}) \\ 
-    &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_{L-1} = x_{L-1})\cdot\mathcal{T}_{L-1, L} \\ 
-    &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_{L-2} = x_{L-2})\cdot \mathcal{T}_{L-2, L-1}\cdot\mathcal{T}_{L-1, L} \\ & \hspace{0.5em}\vdots \\ &= \pi(x_0)\cdot\mathcal{T}_{0,1}\cdot \ldots \cdot \mathcal{T}_{L-2, L-1} \cdot\mathcal{T}_{L-1, L}
+    &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_{L-1} = x_{L-1})\cdot\mathcal{T}_{x_{L-1}, x_L} \\ 
+    &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_{L-2} = x_{L-2})\cdot \mathcal{T}_{x_{L-2}, x_{L-1}}\cdot\mathcal{T}_{x_{L-1}, x_L} \\ & \hspace{0.5em}\vdots \\ &= \pi(x_0)\cdot\mathcal{T}_{x_0,x_1}\cdot \ldots \cdot \mathcal{T}_{x_{L-2}, x_{L-1}} \cdot\mathcal{T}_{x_{L-1}, x_L}
 \end{align*}
 where the second inequality holds because of the Markov property. Also, note that $\pi(x_0)$ refers to the probability that the initial state is $x_0$. Hence, it is apparent that calculating the probability of a specific realization of the MC is very simple. 
 
@@ -94,61 +94,48 @@ Yoon gives a very nice first introduction to Hidden Markov Models (HMMs): "A hid
 
 In a HMM, a hidden sequence of states is generated, according to the MC. This sequence will not be observable and will in (almost) all practical cases be considered as unknown. Each of the states creates, or \textit{emits}, an observed value. All these observed values are what make up the observed sequence. The emission follows a multinomial distribution, where each state follows such a distribution with different parameters. An important assumption for the HMM we will deal with is that the parameters of each multinomial only depends on the state to which it belongs \cite{Choo2004}. This means that the emitted value only depends on its respective hidden state and not on other hidden states. A HMM thus represents a doubly stochastic process: the current underlying state in the MC is stochastic, with an added layer of stochasticity in the observed value. Note that each of the hidden states should be able to produce the same symbols, i.e. the same observable values, but in different frequencies \cite{Christianini2006}.
 
-Following the same notation as earlier, let $\mathbf{X}$ be the random vector that represents the underlying MC of length $L+1$, let $\mathcal{T}$ be the transition probability matrix, let $\mathcal{H}$ denoted the hidden states, where $m = \text{card}(\mathcal{H})$, and let $\pi$ be the initial distribution of states. In addition to this, we need to define some notation for the observable sequence in the HMM. First of all, let the random vector $\mathbf{Y} = (Y_0, Y_1, \ldots, Y_L)^T$ represent an observable sequence of length $L+1$. As earlier, $\mathbf{y} = (y_0, y_1, \ldots, y_L)^T$ will represent a realization of $\mathbf{Y}$. Note that both the hidden and the observed sequence are of length $L+1$, since it is assumed that each state emits exactly one symbol. The \textit{symbol alphabet}, i.e. the set of symbols that can be emitted from each state, will be denoted by $\mathcal{S} = \{s_1, \ldots, s_M\}$, where $M = \text{card}(\mathcal{S})$. The \textit{emission probabilities}, i.e. the probabilities used in each multinomial distribution in each state, are usually arranged in a matrix as well. Denote by $\mathcal{E}$ the emission probability matrix. $\mathcal{E}$ is of dimension $m \times M$, where each row in the matrix contains the emission probabilities (of each of the symbols) for a given state. Written in mathematical terms 
+Following the same notation as earlier, let $\mathbf{X}$ be the random vector that represents the underlying MC of length $L+1$, let $\mathcal{T}$ be the transition probability matrix, let $\mathcal{H}$ denote the hidden states, where $m = \text{card}(\mathcal{H})$, and let $\pi$ be the initial distribution of states. In addition to this, we need to define some notation for the observable sequence in the HMM. First of all, let the random vector $\mathbf{Y} = (Y_0, Y_1, \ldots, Y_L)^T$ represent an observable sequence of length $L+1$. As earlier, $\mathbf{y} = (y_0, y_1, \ldots, y_L)^T$ will represent a realization of $\mathbf{Y}$. Note that both the hidden and the observed sequence are of length $L+1$, since it is assumed that each state emits exactly one symbol. The \textit{symbol alphabet}, i.e. the set of symbols that can be emitted from each state, will be denoted by $\mathcal{S} = \{s_1, \ldots, s_M\}$, where $M = \text{card}(\mathcal{S})$. The \textit{emission probabilities}, i.e. the probabilities used in each multinomial distribution in each state, are usually arranged in a matrix as well. Denote by $\mathcal{E}$ the emission probability matrix. $\mathcal{E}$ is of dimension $m \times M$, where each row in the matrix contains the emission probabilities (of each of the symbols) for a given state. Written in mathematical terms 
 \begin{align*}
     \mathcal{E}_{ij} &= \text{P}(Y_t = j|X_t = i), \hspace{0.5em} i \in \mathcal{H}, j \in \mathcal{S}.
 \end{align*}
 Time-homogeneity is also assumed in the stochastic process of emission, which means that these emission probabilities are the same $\forall t \in [0, L]$. 
 
-
-A HMM is completely determined by the following four components: (i) A symbol alphabet, $K$ different symbols (e.g. $A = \{A, C, T, G\}, \text{card}(A) = K$), (ii) number of states in the model $M$, (iii) emission probabilities $e_i(x)$ for each state $i$ and (iv) transition probabilities $t_i(j)$ for each state $i$ to another state $j$ \cite{Eddy04}. 
-
-CALCULATIONS: This independence assumption, together with the independence assumptions of the "standard" Markov chain, makes the calculation of the probabilities very easy, since most of the conditional probabilites are reduced to "regular" probabilities. The total likelihood of the hidden sequence is simply the product of the individual probabilities of the states at each position in the sequence, as noted in the Markov chains earlier. Similarly, this idea applies to the likelihood of the emitted sequence given the hidden state at each position. The theorem of total probability can be used to compute the probability of the observed values. Since this probability is infeasible (why?), it is solved via the forward algorithm, which is based on the dynamic programming paradigm \cite{Christianini2006}.
-
-
-We need some notation and perhaps an example. 
-
-Let $\mathcal{H} = \{h_1, \ldots, h_N\}$ be the set of hidden states in the underlying Markov chain and let $N = \text{card}(\mathcal{H})$. Similarly,A hidden sequence of states in the Markov chain will be denoted by $\mathbf{X} = X_1X_2\ldots X_n$, where $n$ is the number of states that the Markov chain has traversed. An observed sequence will be denoted by $\mathbf{Y} = Y_1Y_2\ldots Y_n$, where $n$ are the number of symbols in the observed sequence. The emission and transition probabilities are presented as matrices. Denote by $\mathcal{T}$ the transition probability matrix of $N \times N$. Remember that each position $\mathcal{T}_{ij}$ in $\mathcal{T}$ represents the probability of a transition from state $i$ to state $j$, where $i,j \in \mathcal{H}$. 
-
-
-Calculating probabilities in HMMs is simple. The first-order time-homogeneous assumptions for the underlying Markov chain make it possible to find the probability of $\mathbf{X}$ as the product of all appropriate transition probabilities. In mathematical notation, the probability of $\mathbf{X}$ is
-
-\begin{equation*}
-    \text{P}(\mathbf{X}) = \pi_{x_1}\prod_{t=2}^n\mathcal{T}_{x_{t-1}, x_t}, 
-\end{equation*}
-where $\pi_{x_1}$ denotes the initial state probability of $x_1$, which is the first state in the hidden MC. In a similar fashion the independence assumptions in the rest of the HMM \textcolor{red}{Specify above what these assumptions are!} make it possible to find the probability of the observed sequence simply by taking the product of all appropriate emission probabilities. In mathematical terms, the probability of seeing the sequence $\mathbf{Y}$, given the state sequence $\mathbf{X}$, is 
-
-\begin{equation*}
-    \text{P}(\mathbf{Y}|\mathbf{X}) = \prod_{t=1}^n\mathcal{E}_{x_t,y_t}.
-\end{equation*}
-Finally, combining these results, the joint probability of the sequences $\mathbf{X}$ and $\mathbf{Y}$ is 
-
-\begin{equation*}
-    \text{P}(\mathbf{X}, \mathbf{Y}) = \text{P}(\mathbf{X})\text{P}(\mathbf{Y}|\mathbf{X}).
-\end{equation*}
-Note that we here assume that the hidden state sequence $\mathbf{X}$ is known, which is usually not the case in practice. The state sequence needs to be inferred from the observed sequence, which is one of the main problems of a HMM, which will be explained in the following. For a more rigorous treatment of this topic, the reader is referred to ... \textcolor{red}{Henvis til kilder som utleder disse resultatene her!!}
-
-Transitional probabilities, emission probabilities and initial state probabilities completely specify a HMM \cite{Yoon2009}.
-
-A more technical article with more examples is \cite{Yoon2009}.
-
-The model parameters can be estimated given some training data, where both the hidden and observed states are known, using the maximum likelihood principle and the EM (expectation maximization) algorithm \cite{Christianini2006}.
-
-As with the Markov models described in an earlier section, we need to declare some initial probabilities for the state of the Markov process. 
-
-\subsection{Algorithms (or Basic Problems)}
-http://jedlik.phy.bme.hu/~gerjanos/HMM/node6.html
-
-As Yoon points out in his article, there are three issues that need to be resolved in order to be able to use HMMs in practical applications \cite{Yoon2009}. In the following, these issues will be presented, together with algorithms that are used to address the problems. 
-
-\subsubsection{Forward Algorithm (The Evaluation Problem)}
-The first issue that needs to be addressed is: how can the probability $\text{P}(\mathbf{y})$ be calculated? That is, how can one find the probability of the observed sequence $\mathbf{y}$? If the underlying state sequence was known, this would have been easily calculated based on the emission probabilities in each state. \textcolor{red}{Refer to some formula from earlier perhaps, if possible} However, the underlying state sequence cannot be observed, which means that there may exist many different underlying state sequences that can yield the same observed sequence $\mathbf{y}$. Thus, the first solution that comes to mind would be to use the law of total probability to calculate
+A HMM is completely specified by $\pi$, $\mathcal{T}$ and $\mathcal{E}$, where the state space $\mathcal{H}$ and the symbol space $\mathcal{S}$ are indirectly determined by the other quantities \cite{Eddy04}. Once these quantities are specified, one can make calculations concerning the HMM. As already noted, calculating the probability of a given realization $\mathbf{x}$ is 
 
 \begin{equation}
-    \text{P}(\textbf{y}) = \sum_{\forall\textbf{x}_i \in \mathcal{H}^n} \text{P}(\textbf{y}, \textbf{x}_i) = \sum_{\forall\textbf{x}_i \in \mathcal{H}^n} \text{P}(\mathbf{x}_i)\text{P}(\mathbf{y}|\mathbf{x}_i), 
+    \text{P}(\mathbf{X} = \mathbf{x}) = \pi(x_0)\prod_{t=2}^L\mathcal{T}_{x_{t-1}, x_t}.
+    \label{ProbHiddenMC}
+\end{equation}
+In a similar fashion, the assumption of independence between states when generating symbols makes it possible to find the probability of the observed sequence simply by taking the product of all appropriate emission probabilities. In mathematical terms, the probability of seeing the sequence $\mathbf{y}$, given the state sequence $\mathbf{x}$, is 
+
+\begin{equation}
+    \text{P}(\mathbf{Y} = \mathbf{y}|\mathbf{X}= \mathbf{x}) = \prod_{t=1}^L\mathcal{E}_{x_t, y_t}.
+    \label{ProdObservableSeq}
+\end{equation}
+Finally, combining these results, the joint probability of the sequences $\mathbf{x}$ and $\mathbf{y}$ is 
+
+\begin{equation}
+    \text{P}(\mathbf{X} = \mathbf{x}, \mathbf{Y}= \mathbf{y}) = \text{P}(\mathbf{X}= \mathbf{x})\text{P}(\mathbf{Y}= \mathbf{y}|\mathbf{X}= \mathbf{x}) = \pi(x_0)\mathcal{E}_{x_0, y_0}\prod_{t=2}^L\mathcal{E}_{x_t, y_t}\mathcal{T}_{x_{t-1}, x_t}.
+    \label{JointProbSequences}
+\end{equation}
+Note that we here assume that the hidden state sequence $\mathbf{x}$ is known, which is usually not the case in practice. The state sequence needs to be inferred from the observed sequence, which is one of the main problems of a HMM, which will be explained in the following. For a more rigorous treatment of this topic, although in the topic of speech recognition, the reader is referred to \cite{Rabiner1989}.
+
+
+\subsection{Basic Problems for HMMs}
+http://jedlik.phy.bme.hu/~gerjanos/HMM/node6.html
+
+As Yoon \cite{Yoon2009} and Rabiner \cite{Rabiner1989} point out in their respective articles, there are three issues that need to be resolved in order to be able to use HMMs in practical applications. In the following, these issues will be presented, together with algorithms that are used to address the problems. 
+
+A given HMM will in the following be denoted by $\theta = (\pi, \mathcal{T}, \mathcal{E})$. This means that when we refer to a HMM $\theta$, this means that the HMM is fully specified by the three needed parameters. Moreover, for ease of notation, $\text{P}(\mathbf{Y} = \mathbf{y})$ will be denoted as simply $\text{P}(\mathbf{y})$ in the following. 
+
+\subsubsection{The Evaluation Problem}
+The first issue that needs to be addressed is: how can the probability $\text{P}(\mathbf{y}|\theta)$ be calculated? That is, how can one find the probability of observing the realization $\mathbf{y}$ from a given HMM $\theta$? If the exact underlying state sequence was known, this would have been easily calculated using equation \eqref{JointProbSequences}. However, the underlying state sequence cannot be observed, which means that there may exist many different underlying state sequences that can yield the same observed sequence $\mathbf{y}$. Thus, the first solution that comes to mind would be to use the law of total probability to calculate
+
+\begin{equation}
+    \text{P}(\textbf{y}|\theta) = \sum_{\forall\textbf{x}_i \in \mathcal{H}^n} \text{P}(\textbf{y}, \textbf{x}_i|\theta) = \sum_{\forall\textbf{x}_i \in \mathcal{H}^n} \text{P}(\mathbf{x}_i|\theta)\text{P}(\mathbf{y}|\mathbf{x}_i,\theta), 
 \label{unfeasibleForward}
 \end{equation}
-where $\mathcal{H}^n$ is the space of all possible state sequences that can yield $\mathbf{y}$. Of course, $\mathcal{H}^n$ can be very large, which makes this calculation computationally infeasible. In fact, $\mathcal{H}^n$ may consist of $N^n$ sequences, since these are all possible state sequences. Luckily, the \textit{forward algorithm} exists, which uses dynamic programming to solve this issue in a computationally feasible manner. This algorithm has time complexity $\mathcal{O}(nN^2)$ \textcolor{red}{Check that this is correct!}, which is a significant improvement from the exponential solution proposed by equation \eqref{unfeasibleForward}. The algorithm defines the forward variable 
+where $\mathcal{H}^n$ is the space of all possible state sequences that can yield $\mathbf{y}$. Of course, $\mathcal{H}^n$ can be very large, which makes this calculation computationally infeasible. In fact, $\mathcal{H}^n$ may consist of $m^L$ sequences, since these are all possible state sequences. Luckily, the \textit{forward algorithm} exists, which uses dynamic programming to solve this issue in a computationally feasible manner. This algorithm has time complexity $\mathcal{O}(Lm^2)$, which is a significant improvement from the exponential solution proposed by equation \eqref{unfeasibleForward}. \textcolor{blue}{Ikke sikkert at denne notasjonen er nødvendig nå}The algorithm defines the forward variable 
 
 \begin{equation}
 \phi(n,i) = \text{P}(\textbf{X}, h_n = i).
@@ -156,21 +143,35 @@ where $\mathcal{H}^n$ is the space of all possible state sequences that can yiel
 \end{equation}
 \textcolor{red}{Continue... This is read from Yoon2009.}
 
-Posterior decoding - confidence in the best scoring path.
+The forward algorithm takes the form \textcolor{red}{Gå gjennom og sjekk at dette stemmer!}
 
-Now, note that the forward algorithm is used to verify if the observed sequence could have been generated by the given HMM. If the calculated probability is lower then some "background distribution" of similar sequences, then the probability of the sequence being emitted by the HMM is low and one would conclude that the HMM is not a good model for the observed sequence. However, if the probability is high, then we can conclude that the HMM can be used in the situation. When this is verified, we tackle the \textit{decoding problem}.
+\begin{algorithm}
+    \caption{Forward Algorithm}\label{alg:Forward}
+    \begin{algorithmic}
+        \STATE $V \gets \text{array}(m \times (L+1))$
+        \STATE $i \gets 0$
+        \STATE $V(0,0) \gets 1$
+        \STATE $V(k,0) \gets 0, \forall k > 0$
+        \FOR{$i = 1, 2, \ldots, L$}
+            \STATE $V(l,i) \gets \mathcal{E}_{x_l, \mathbf{y}_i}\sum_kV(k, i-1)\mathcal{T}_{x_k,x_l}$
+        \ENDFOR
+        \RETURN $\text{P}(\mathbf{y}|\theta) = \sum_{k}V(k,L)$
+    \end{algorithmic} 
+\end{algorithm}
 
-\subsubsection{Viterbi Algorithm (The Decoding Problem)}
-The second issue that needs to be addressed is: what state path $\mathbf{X}$ maximizes the probability of emitting the observed sequence $\mathbf{H}$, i.e. how can the \textit{optimal state path} be found? This follows the principle of maximum likelihood, which says that we should choose the hidden state path that maximizes the likelihood of yielding the observed sequence. Our best bet when trying to infer the hidden state path from the observed sequence is exactly the one that gives the maximum probability of obtaining the observed sequence. In other words, the hidden state sequence that best explains the observed sequence is the optimal state path
+Note that the forward algorithm gives a \textit{confidence measure} on the observed sequence - how confident are we that the observed sequence could have been generated by the model $\theta$. If the calculated probability is lower then some "background distribution" of similar sequences, then the probability of the sequence being emitted by the HMM is low and one would conclude that the HMM is not a good model for the observed sequence. However, if the probability is high, then we can conclude that the HMM can be used in the situation. When this is verified, we tackle the \textit{decoding problem}.
+
+\subsubsection{The Decoding Problem}
+The second issue that needs to be addressed is: what state path $\mathbf{x}$ maximizes the probability of emitting the observed sequence $\mathbf{y}$, i.e. how can the \textit{optimal state path} be found? This follows the principle of maximum likelihood, which says that we should choose the hidden state path that maximizes the likelihood of yielding the observed sequence. Our best bet when trying to infer the hidden state path from the observed sequence is exactly the one that gives the maximum probability of obtaining the observed sequence. In other words, the hidden state sequence that best explains the observed sequence is the optimal state path
 
 \begin{equation}
-    \mathbf{H^*} = \argmax_\mathbf{H} \text{P}(\mathbf{H}|\mathbf{X}).
+    \mathbf{x^*} = \argmax_\mathbf{X} \text{P}(\mathbf{X}|\mathbf{y}).
     \label{optimalStatePath}
 \end{equation}
-Notice that this is equivalent to finding the state sequence that maximizes $\text{P}(\mathbf{H}, \mathbf{X})$, because of the definition of conditional probability  
+Notice that this is equivalent to finding the state sequence that maximizes $\text{P}(\mathbf{X}, \mathbf{y})$, because of the definition of conditional probability  
 
 \begin{equation*}
-    \text{P}(\mathbf{H}|\mathbf{X}) = \frac{\text{P}(\mathbf{H}, \mathbf{X})}{\text{P}(\mathbf{X})}.
+    \text{P}(\mathbf{X}|\mathbf{y}) = \frac{\text{P}(\mathbf{X}, \mathbf{y})}{\text{P}(\mathbf{y})}.
 \end{equation*}
 Again, the first solution that comes to mind would be to compare all possible state sequences $S^n$, but this is still computationally infeasible in most cases. Therefore, the \textit{Viterbi algorithm}, which also is based on dynamic programming, exists. The time complexity of the Viterbi algorithm is $\mathcal{O}(nS^2)$, which is the same as for the forward algorithm. This is a large improvement over the first, straight-forward solution that was proposed, which has a time complexity yields an exponential increase with the size of the sequence $n$. \textcolor{red}{Continue... Reading from Yoon2009.}
 
@@ -178,28 +179,34 @@ Finding the best state path, i.e. inferring the hidden state path from the given
 
 The algorithm is given below. \textcolor{red}{Notation needs to be consistent throughout the report!! I will define some notation below right away, but should be moved to the theoretical backgorund on HMMs after.}
 
-Let $\mathcal{H}$ be the set of hidden states in the underlying Markov chain and let $N = \text{card}(\mathcal{H})$. Let $\mathcal{E}$ be the symbol alphabet, i.e. the set of symbols that can be emitted from each state. Let $\mathcal{T}$ be the transition matrix in the underlying Markov chain, which has dimensions $N \times N$.
-
-Given an observed sequence $\mathbf{s}$ of length $n$, the Viterbi algorithm is 
+Given an observed sequence $\mathbf{s}$ of length $n$, the Viterbi algorithm is \textcolor{red}{Trying to get the traceback into the algorithm below!}
 
 \begin{algorithm}
 \caption{Viterbi Algorithm}\label{alg:Viterbi}
 \begin{algorithmic}
-    \STATE $V \gets \text{array}(N \times (n+1))$
+    \STATE $V \gets \text{array}(m \times (L+1))$
+    \STATE $P \gets \text{array}(m \times (L+1))$
     \STATE $i \gets 0$
     \STATE $V(0,0) \gets 1$
     \STATE $V(k,0) \gets 0, \forall k > 0$
-    \FOR{$i = 1, 2, \ldots, n$}
-        \STATE $V(l,i) \gets \mathcal{E}(l, \mathbf{s}(i))\max_k\{V(k, i-1)\mathcal{T}(k,l)\}$
-        \STATE $\text{pointer}(i,l) \gets \argmax_k\{V(k, i-1)\mathcal{T}(k,l)\}$
+    \FOR{$i = 1, 2, \ldots, L$}
+        \STATE $V(l,i) \gets \mathcal{E}_{x_l, \mathbf{y}_i}\max_k\{V(k, i-1)\mathcal{T}_{x_k,x_l})\}$
+        \STATE $P(l,i) \gets \argmax_k\{V(k, i-1)\mathcal{T}_{x_k,x_l}\}$
     \ENDFOR
+    \STATE $z_L \gets \argmax \argmax_kV(k, L)$
+    \FOR{$i = L, L-1, \ldots 1$}
+        \STATE $z_{i-1} \gets P(z_j, i)$ 
+    \ENDFOR 
+    \RETURN $\mathbf{x}^* \gets \argmax_kV(k, L)$
+
 \end{algorithmic} 
-\end{algorithm}
-\textcolor{red}{Missing output (traceback using pointers) etc}
+\end{algorithm} 
+\textcolor{red}{La til en matrise P, som skal brukes til tracing! Sjekk at det blir korrekt slik jeg har gjort det!}
 
 Note that in practice it is common to work with the logarithm of these probabilities, because the product of these probabilities quickly become very small. Thus working with addition, as a consequence of the log-transform, yields larger numerical stability. 
 
-\subsubsection{Backward Algorithm (The Training Problem)}
+The \textit{Backward algorithm} is an alternative ?? The backward algorithm seems like an alternative to the forward algorithm; if the largest probability is known (already found with Viterbi), then it seems like the path that correspond to this probability can be found with the backward algorithm. 
+
 The Viterbi algorithm finds the optimal path for obtaining the entire sequence, i.e. it finds the sequence that maximizes the joint probability of obtaining the entire observed sequence. In some cases, one might be interested in finding the path that gives the largest probability of observing each symbol of the sequence individually. This can be done using the \textit{backward algorithm}. The problem here is to find the state $h_j$ that has the highest likelihood of being the hidden state of $x_j$, i.e. 
 
 \begin{equation*}
@@ -223,10 +230,10 @@ The parameters of the HMM are estimated, or the model is trained, based on a lar
 \subsubsection{Estimation of Emission Probabilities}
 \cite{Choo2004}
 
+The model parameters can be estimated given some training data, where both the hidden and observed states are known, using the maximum likelihood principle and the EM (expectation maximization) algorithm \cite{Christianini2006}.
+
 \subsubsection{HMM Models}
 In addition to the standard HMM that was described in the previous section, there exists many other variants of the HMM. This section presents several different types, but note that this list is by no means exhaustive. 
-
-Standard, Generalized, Pair, Generalized Pair, Profile \cite{Choo2004}.
 
 \subsubsection{Generalized HMMs}
 \textcolor{red}{Changes the distribution of time until state transition (to another state) from geometric to another generalized distribution. Let's see if I have to add it here (depending on if it is used in some of the applicatins in biology. I think this is a continuous time Markov Chain (with sojourn times etc) as learned in StokMod, but not sure. } 
@@ -296,6 +303,8 @@ Remember that profile HMMs were used to make profiles that represent multiple al
 HMMs do not deal well with correlations between residues, since they assume that each residue depends only on one underlying state \cite{Eddy04}, i.e. it is assumed that the sequence is generated from the hidden state path, where each letter in the sequence only depends on the emission probabilities of its corresponding node in the state path (hidden Markov chain). Since the Markov property is assumed, an HMM has no way of "remembering" any distant correlation between the letters in the sequence alphabet. 
 
 As already noted, Choo et. al writes that "the linear nature of HMM also makes it difficult to capture higher-level information or correlations among amino acids" \cite{Choo2004}.
+
+Standard, Generalized, Pair, Generalized Pair, Profile \cite{Choo2004}.
 
 \section{Applications in Bioinformatics}
 Introduction to Computational Genomics: A Case Studies Approach, Chapter 4. 
@@ -455,9 +464,8 @@ DENNE MÅ FØRES OPP ORDENTLIG!
 %https://www.bioinformatics.org/wiki/Multiple_sequence_alignment
 DENNE MÅ FØRES OPP ORDENTLIG!
 
-KANSKJE DENNE NEDENFOR SKAL BRUKES OGSÅ?
-Rabiner, L.R. 1989. A tutorial on hidden Markov
-models and selected applications in speech recognition
+\bibitem{Rabiner1989}
+Lawrence R. Rabiner (1989) \emph{A tutorial on hidden Markov models and selected applications in speech recognition}, Proceedings of the IEEE, Vol. 77, No. 2, 257-286
 
 \end{thebibliography}
 
