@@ -1,0 +1,35 @@
+\contentsline {section}{\numberline {1}Introduction}{2}%
+\contentsline {section}{\numberline {2}Objectives}{2}%
+\contentsline {section}{\numberline {3}Theoretical Background}{2}%
+\contentsline {subsection}{\numberline {3.1}Markov Chains}{2}%
+\contentsline {subsubsection}{\numberline {3.1.1}Markov Chain Topologies}{4}%
+\contentsline {subsection}{\numberline {3.2}Hidden Markov Models}{4}%
+\contentsline {subsection}{\numberline {3.3}Algorithms (or Basic Problems)}{6}%
+\contentsline {subsubsection}{\numberline {3.3.1}Forward Algorithm (The Evaluation Problem)}{6}%
+\contentsline {subsubsection}{\numberline {3.3.2}Viterbi Algorithm (The Decoding Problem)}{7}%
+\contentsline {subsubsection}{\numberline {3.3.3}Backward Algorithm (The Training Problem)}{7}%
+\contentsline {subsubsection}{\numberline {3.3.4}The Training Problem}{8}%
+\contentsline {subsubsection}{\numberline {3.3.5}Estimation of Emission Probabilities}{8}%
+\contentsline {subsubsection}{\numberline {3.3.6}HMM Models}{8}%
+\contentsline {subsubsection}{\numberline {3.3.7}Generalized HMMs}{9}%
+\contentsline {subsubsection}{\numberline {3.3.8}Profile-HMMs}{9}%
+\contentsline {subsubsection}{\numberline {3.3.9}Pair-HMMs}{10}%
+\contentsline {subsubsection}{\numberline {3.3.10}Context-Sensitive HMMs (csHMMs)}{10}%
+\contentsline {subsubsection}{\numberline {3.3.11}Advantages of HMMs (could be moved somewhere else)}{11}%
+\contentsline {subsubsection}{\numberline {3.3.12}Disadvantages of HMMs (could be moved somewhere else)}{11}%
+\contentsline {section}{\numberline {4}Applications in Bioinformatics}{11}%
+\contentsline {subsection}{\numberline {4.1}Pairwise Sequence Alignment}{14}%
+\contentsline {subsection}{\numberline {4.2}Multiple Sequence Alignment}{14}%
+\contentsline {subsection}{\numberline {4.3}Motif Representation (or Identification?)}{15}%
+\contentsline {subsection}{\numberline {4.4}Prediction of Function}{16}%
+\contentsline {subsection}{\numberline {4.5}Segmentation}{16}%
+\contentsline {subsection}{\numberline {4.6}Protein Homology Detection}{16}%
+\contentsline {subsection}{\numberline {4.7}Gene Prediction / Genomic Annotation (?) / Gene Finding (?)}{17}%
+\contentsline {subsection}{\numberline {4.8}Protein Sequence Classification}{17}%
+\contentsline {subsection}{\numberline {4.9}Protein Structure Prediction}{17}%
+\contentsline {subsection}{\numberline {4.10}Base-calling}{17}%
+\contentsline {subsection}{\numberline {4.11}Modeling DNA Sequencing Errors}{17}%
+\contentsline {subsection}{\numberline {4.12}ncRNA Identification}{17}%
+\contentsline {subsection}{\numberline {4.13}RNA Structural Alignment}{17}%
+\contentsline {section}{\numberline {5}Examples in R}{17}%
+\contentsline {subsection}{\numberline {5.1}CG-islands and the "Fair Bet Casino"}{17}%
