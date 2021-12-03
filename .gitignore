@@ -6,3 +6,7 @@ Task1-2/_ncbi_downloads
 *.log
 *.toc
 Project/main.synctex.gz
+Project/*
+!Project/main.tex
+!Project/main.pdf
+
