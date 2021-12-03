@@ -1,2 +1,8 @@
 Task1-2/_ncbi_downloads
 .Rproj.user
+*.aux
+*.fls
+*.fdb_latexmk
+*.log
+*.toc
+Project/main.synctex.gz
