@@ -9,6 +9,7 @@
 \usepackage{graphicx}
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage{comment}
 
 \title{Hidden Markov Models in Bioinformatics}
 \author{Alexander J Ohrt - UPC BarcelonaTech}
@@ -45,7 +46,7 @@ where the superscripts highlight an important point; the \textit{one-step transi
 \end{equation*}
 In a MC, the random variable $X$ can only take values from a pre-specified set called \textit{states}. We will concentrate on the simplest type of state space, which yields a so-called \textit{discrete-time} MC. This is the case when the set of states is finite or countable set and whose time index is $T = (0,1,2,\ldots)$. Thus, we have described the assumptions made when working with the simplest form of MC, which we call a \textit{discrete-state time-homogeneous first-order MC} \cite{Pinsky2011}. These lay the foundation of the Hidden Markov Models that we will study in the remainder of the report. 
 
-Let us define the notation that will be used in the remainder. First of all, let the random vector $\mathbf{X} = (X_0, X_1, \ldots, X_L)^T$ represent a MC of length $L+1$. In the following we will always assume that $\mathbf{X}$ is of finite length $L+1$. A realization of the random vector will be denoted in lower case, i.e. $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$, following standard notation in most probability or statistics courses. What exactly this means will become clear later. A discrete-time MC consists of a finite set of states, which will be denoted by $\mathcal{H} = \{h_1, \ldots, h_m\}$, where $m = \text{card}(\mathcal{H})$ are the amount of states in the model. Why the letter $\mathcal{H}$ is chosen will hopefully become clear when studying the Hidden Markov Models. The MC transitions between each of the states in $\mathcal{H}$, based on the set of \textit{transition probabilities}, which where denoted by $\text{P}_{ij}$ above. In the following, the notation $\mathcal{T}_{ij}$ will be adopted instead, for ease of recalling that they are transition probabilities. These are summarized in a $m \times m$-matrix $\mathcal{T}$, where each position $\mathcal{T}_{ij}$ represents the probability of a transition from state $i$ to state $j$, where $i, j \in \mathcal{H}$. Written in mathematical notation
+Let us define the notation that will be used in the remainder. First of all, let the random vector $\mathbf{X} = (X_0, X_1, \ldots, X_L)^T$ represent a MC of length $L+1$. In the following we will always assume that $\mathbf{X}$ is of finite length $L+1$. A realization of the random vector will be denoted in lower case, i.e. $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$, following standard notation in most probability or statistics courses. What exactly this means will become clear later. A discrete-time MC consists of a finite set of states, which will be denoted by $\mathcal{H} = \{h_0, \ldots, h_m\}$, where $m+1 = \text{card}(\mathcal{H})$ are the amount of states in the model. Why the letter $\mathcal{H}$ is chosen will hopefully become clear when studying the Hidden Markov Models. The MC transitions between each of the states in $\mathcal{H}$, based on the set of \textit{transition probabilities}, which where denoted by $\text{P}_{ij}$ above. In the following, the notation $\mathcal{T}_{ij}$ will be adopted instead, for ease of recalling that they are transition probabilities. These are summarized in a $m \times m$-matrix $\mathcal{T}$, where each position $\mathcal{T}_{ij}$ represents the probability of a transition from state $i$ to state $j$, where $i, j \in \mathcal{H}$. Written in mathematical notation
 
 \begin{equation*}
         \mathcal{T}_{ij} = \text{P}(X_{t+1} = j|X_{t} = i), \hspace{0.5em} i,j \in \mathcal{H}. 
@@ -55,7 +56,7 @@ As noted, the term \textit{time-homogeneous} refers to the fact that $\mathcal{T
 \begin{equation*}
     \mathcal{T}_{ij} = \text{P}(X_{t+1} = j|X_{t} = i), \hspace{0.5em} i,j \in \mathcal{H}, \forall t \in [0,L].
 \end{equation*}
-Moreover, the term \textit{first-order} refers to an important assumption in this model, which makes it possible to define $\mathcal{T}$ as we did, which is that the transition probability from the previous state to the current state only depends on the previous state. For example, a time-homogeneous second-order MC would depend on the two previous states when transitioning to the current state, which makes the model more general, but also more complicated. Note that the initial state of a MC is determined based on the initial distribution of the states, commonly denoted by $\pi = (\pi_1, \ldots, \pi_n)$. The assumptions make calculations of probabilities in the MCs very simple, since they are strong independence assumptions. 
+Moreover, the term \textit{first-order} refers to an important assumption in this model, which makes it possible to define $\mathcal{T}$ as we did, which is that the transition probability from the previous state to the current state only depends on the previous state. For example, a time-homogeneous second-order MC would depend on the two previous states when transitioning to the current state, which makes the model more general, but also more complicated. Note that the initial state of a MC is determined based on the initial distribution of the states, commonly denoted by $\pi = (\pi(h_0), \ldots, \pi(h_m))$. The assumptions make calculations of probabilities in the MCs very simple, since they are strong independence assumptions. 
 
 A MC is completely specified by $\pi$ and $\mathcal{T}$ (where $\mathcal{H}$ is indirectly given in both these two quantities). Once these quantities are specified, one can make calculations concerning the MC. The probability of a realization $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$ taking place can be calculated recursively as 
 
@@ -144,16 +145,16 @@ The forward algorithm takes the form
 \begin{algorithm}
     \caption{Forward Algorithm}\label{alg:Forward}
     \begin{algorithmic}
-        \STATE $V \gets \text{array}(m \times (L+1))$
-        \FOR{$i = 0, 1, \ldots, m-1$}
-            \STATE $V(i,0) \gets \pi(x_i) \mathcal{E}_{x_i,y_0}$
+        \STATE $V \gets \text{array}((m+1) \times (L+1))$
+        \FOR{$i = 0, 1, \ldots, m$}
+            \STATE $V(i,0) \gets \pi(h_{i}) \mathcal{E}_{h_{i},y_0}$
         \ENDFOR
         \FOR{$i = 1, 2, \ldots, L$}
-            \FOR{$j = 0,1,\ldots,m-1$}
-                \STATE $V(j,i) \gets \mathcal{E}_{x_j, y_i}\sum_{k=0}^{m-1}V(k, i-1)\mathcal{T}_{x_k,x_j} $
+            \FOR{$j = 0,1,\ldots,m$}
+                \STATE $V(j,i) \gets \mathcal{E}_{h_{j}, y_i}\sum_{k=0}^{m}V(k, i-1)\mathcal{T}_{h_{k},h_{j}} $
             \ENDFOR
         \ENDFOR
-        \RETURN $\text{P}(\mathbf{y}|\theta) = \sum_{k=0}^{m-1}V(k,L)$
+        \RETURN $\text{P}(\mathbf{y}|\theta) \gets \sum_{k=0}^{m}V(k,L)$
     \end{algorithmic} 
 \end{algorithm}
 
@@ -163,46 +164,44 @@ Note that the forward algorithm gives a \textit{confidence measure} on the obser
 The second issue that needs to be addressed is: what state path $\mathbf{x}$ maximizes the probability of emitting the observed sequence $\mathbf{y}$, i.e. how can the \textit{optimal state path} be found? This follows the principle of maximum likelihood, which says that we should choose the hidden state path that maximizes the likelihood of yielding the observed sequence. Our best bet when trying to infer the hidden state path from the observed sequence is exactly the one that gives the maximum probability of obtaining the observed sequence. In other words, the hidden state sequence that best explains the observed sequence is the optimal state path
 
 \begin{equation}
-    \mathbf{x^*} = \argmax_\mathbf{X} \text{P}(\mathbf{X}|\mathbf{y}).
+    \mathbf{x^*} = \argmax_\mathbf{X} \text{P}(\mathbf{X}|\mathbf{y}, \theta).
     \label{optimalStatePath}
 \end{equation}
-Notice that this is equivalent to finding the state sequence that maximizes $\text{P}(\mathbf{X}, \mathbf{y})$, because of the definition of conditional probability  
+Notice that this is equivalent to finding the state sequence that maximizes $\text{P}(\mathbf{X}, \mathbf{y}|\theta)$, because of the definition of conditional probability  
 
 \begin{equation*}
-    \text{P}(\mathbf{X}|\mathbf{y}) = \frac{\text{P}(\mathbf{X}, \mathbf{y})}{\text{P}(\mathbf{y})}.
+    \text{P}(\mathbf{X}|\mathbf{y}, \theta) = \frac{\text{P}(\mathbf{X}, \mathbf{y}|\theta)}{\text{P}(\mathbf{y}|\theta)}.
 \end{equation*}
-Again, the first solution that comes to mind would be to compare all possible state sequences $S^n$, but this is still computationally infeasible in most cases. Therefore, the \textit{Viterbi algorithm}, which also is based on dynamic programming, exists. The time complexity of the Viterbi algorithm is $\mathcal{O}(nS^2)$, which is the same as for the forward algorithm. This is a large improvement over the first, straight-forward solution that was proposed, which has a time complexity yields an exponential increase with the size of the sequence $n$. \textcolor{red}{Continue... Reading from Yoon2009.}
+Again, the first solution that comes to mind would be to compare all possible state sequences $m^L$, and use equation \eqref{JointProbSequences}, but this is still computationally infeasible in most cases. Therefore, the \textit{Viterbi algorithm}, which also is based on dynamic programming, exists. The time complexity of the Viterbi algorithm is $\mathcal{O}(Lm^2)$, which is the same as for the forward algorithm. This is a large improvement over the exponential time-complexity of the straightforward solution. 
 
-Finding the best state path, i.e. inferring the hidden state path from the given sequence. More specifically, the Viterbi algorithm is used to find the hidden sequence with the highest likelihood to have produced the observed sequence. 
+\textcolor{red}{Continue... Reading from Yoon2009.}
 
-The algorithm is given below. \textcolor{red}{Notation needs to be consistent throughout the report!! I will define some notation below right away, but should be moved to the theoretical backgorund on HMMs after.}
-
-Given an observed sequence $\mathbf{s}$ of length $n$, the Viterbi algorithm is \textcolor{red}{Trying to get the traceback into the algorithm below!}
+The algorithm is given below. 
 
 \begin{algorithm}
 \caption{Viterbi Algorithm}\label{alg:Viterbi}
 \begin{algorithmic}
-    \STATE $V \gets \text{array}(m \times (L+1))$
-    \STATE $P \gets \text{array}(m \times (L+1))$
-    \STATE $i \gets 0$
-    \STATE $V(0,0) \gets 1$
-    \STATE $V(k,0) \gets 0, \forall k > 0$
-    \FOR{$i = 1, 2, \ldots, L$}
-        \STATE $V(l,i) \gets \mathcal{E}_{x_l, \mathbf{y}_i}\max_k\{V(k, i-1)\mathcal{T}_{x_k,x_l})\}$
-        \STATE $P(l,i) \gets \argmax_k\{V(k, i-1)\mathcal{T}_{x_k,x_l}\}$
+    \STATE $V \gets \text{array}((m+1) \times (L+1))$
+    \STATE $P \gets \text{array}((m+1) \times (L+1))$
+    \FOR{$i = 0, 1, \ldots, m$}
+        \STATE $V(i,0) \gets \pi(h_i) \mathcal{E}_{h_i,y_0}$
+        \STATE $P(i,0) \gets -1$
     \ENDFOR
-    \STATE $z_L \gets \argmax \argmax_kV(k, L)$
-    \FOR{$i = L, L-1, \ldots 1$}
-        \STATE $z_{i-1} \gets P(z_j, i)$ 
-    \ENDFOR 
-    \RETURN $\mathbf{x}^* \gets \argmax_kV(k, L)$
-
+    \FOR{$i = 1, 2, \ldots, L$}
+        \FOR{$j = 0,1,\ldots,m$}
+            \STATE $V(j,i) \gets \mathcal{E}_{h_j, y_i}\max_{k=0,1,\ldots,m}\{V(k, i-1)\mathcal{T}_{h_k,h_j}\}$
+            \STATE $P(j,i) \gets \argmax_{k=0,1,\ldots,m}\{V(k, i-1)\mathcal{T}_{h_k,h_j}\mathcal{E}_{h_j, y_i}\}$
+        \ENDFOR
+    \ENDFOR
+    \RETURN $\text{P}(\mathbf{X}|\mathbf{y},\theta) \gets \max_{k=0,1,\ldots,m}V(k,L); \hspace{0.5em}x_L^* = \argmax_{k=0,1,\ldots,m}V(k,L)$
 \end{algorithmic} 
 \end{algorithm} 
-\textcolor{red}{La til en matrise P, som skal brukes til tracing! Sjekk at det blir korrekt slik jeg har gjort det!}
+Note that $\mathbf{x}^*$ is simple to find based on $x_L^*$; the optimal path $\mathbf{x}^*$ starts at $x_L^*$ and backtracks all the way to $x_0^*$ by using $P(\cdot, \cdot)$. The backtracking ends when the value $-1$ is found in $P$, i.e. when the beginning of the sequence has been reached. 
 
-Note that in practice it is common to work with the logarithm of these probabilities, because the product of these probabilities quickly become very small. Thus working with addition, as a consequence of the log-transform, yields larger numerical stability. 
+Also notice that both the forward and the Viterbi algorithms can easily be log-transformed in order to gain a higher numerical stability, by taking logarithms of all values and switching multiplications with additions. 
 
+\begin{comment}
+\textcolor{red}{CAN write about the backward algorithm if time and if it seems relevant. }
 The \textit{Backward algorithm} is an alternative ?? The backward algorithm seems like an alternative to the forward algorithm; if the largest probability is known (already found with Viterbi), then it seems like the path that correspond to this probability can be found with the backward algorithm. 
 
 The Viterbi algorithm finds the optimal path for obtaining the entire sequence, i.e. it finds the sequence that maximizes the joint probability of obtaining the entire observed sequence. In some cases, one might be interested in finding the path that gives the largest probability of observing each symbol of the sequence individually. This can be done using the \textit{backward algorithm}. The problem here is to find the state $h_j$ that has the highest likelihood of being the hidden state of $x_j$, i.e. 
@@ -213,11 +212,10 @@ The Viterbi algorithm finds the optimal path for obtaining the entire sequence, 
 As before, searching all the possible states is not a viable option, which is why the backward algorithm is used. It works as ... \textcolor{red}{Continue... Reading from Yoon2009.}
 
 But why do we care about finding the sequence of individually optimal states? This will maximize the expected number of correctly predicted states \cite{Yoon2009} \textcolor{blue}{Hvorfor det egentlig?} Well, if this is the case, why does one even bother using the Viterbi algorithm? The problem with the sequence that maximizes the probability of each observation individually is that it in general will be suboptimal, i.e. that there exists some other sequence $\mathbf{h}^*$ such that $\text{P}(\mathbf{X}, h_1h_2\ldots h_n) \leq \text{P}(\mathbf{X}, \mathbf{h}^*)$. Moreover, the sequence may not even be a possible path for the structure of the HMM, for example if some of the transitions in the predicted sequence are not possible with the given state transition probabilities of the model. For this reason, the Viterbi algorithm is preferred when our goal is to find the optimal path for the entire sequence, while the backward algorithm is preferred when our goal is to infer which state is optimal in a specific position in the sequence. Moreover, the backward algorithm can be used to conclude about the confidence of a state prediction \textcolor{red}{Continue... Reading from Yoon2009.}
- 
-\textcolor{red}{Få med dette også, da det virker som et begrep som brukes ofte!}Posterior decoding - confidence in the best scoring path.
+\end{comment}
 
 \subsubsection{The Training Problem}
-The third issue that needs to be addressed is: how can the HMM parameters be reasonably chosen based on a set of observed sequences? \textcolor{red}{Not sure what to call this, because there exists many algorithms it seems like. } For example, we have a set of sequences $\mathbf{\chi} = \{\mathbf{X}_1, \ldots, \mathbf{X}_G\}$, where each $\mathbf{X}_i, \hspace{0.2em} i \in [1,G]$ is an observed sequence of symbols, that we want to represent with a HMM. The difficulty that needs to be solved is how the parameters of the HMM can be estimated based on the set $\mathbf{\chi}$. This is what is typically called the \textit{training} or \textit{learning} problem, analogously to the need for training any other machine learning model. There exists no optimal way to train the HMM from a limited number of finite observation sequences, but there exists algorithms that can find local maximums in the obsercation probability. Some examples are the Baum-Welch algorithm, standard gradient based methods from optimization or simulation with Monte Carlo expectation maximization (MCEM). 
+The third issue that needs to be addressed is: how can the HMM parameters be reasonably chosen based on a set of observed sequences? For example, we have a set of sequences $\mathbf{\chi} = \{\mathbf{X}_1, \ldots, \mathbf{X}_G\}$, where each $\mathbf{X}_i, \hspace{0.2em} i \in [1,G]$ is an observed sequence of symbols, that we want to represent with a HMM. The difficulty that needs to be solved is how the parameters of the HMM can be estimated based on the set $\mathbf{\chi}$. This is what is typically called the \textit{training} or \textit{learning} problem, analogously to the need for training any other machine learning model. There exists no optimal way to train the HMM from a limited number of finite observation sequences, but there exists algorithms that can find local maximums in the obsercation probability. Some examples are the Baum-Welch algorithm, standard gradient based methods from optimization or simulation with Monte Carlo expectation maximization (MCEM). 
 
 \textcolor{red}{Continue... Reading from Yoon2009. And also can read some from the website linked in the beginning of "Algorithms".}
 
@@ -233,8 +231,10 @@ The model parameters can be estimated given some training data, where both the h
 \subsubsection{HMM Models}
 In addition to the standard HMM that was described in the previous section, there exists many other variants of the HMM. This section presents several different types, but note that this list is by no means exhaustive. 
 
+\begin{comment}
 \subsubsection{Generalized HMMs}
 \textcolor{red}{Changes the distribution of time until state transition (to another state) from geometric to another generalized distribution. Let's see if I have to add it here (depending on if it is used in some of the applicatins in biology. I think this is a continuous time Markov Chain (with sojourn times etc) as learned in StokMod, but not sure. } 
+\end{comment}
 
 \subsubsection{Profile-HMMs}
 A profile HMM have a specific architecture, which make them suitable for modeling sequence profiles \cite{Yoon2009}. Because of this, the topology of the profile HMM will be explained with multiple sequence alignment in mind. Two simple ways to think of a profile HMM is as an abstract description of a protein family or a statistical summary of multiple sequence alignment \cite{Christianini2006}. A profile HMM is constricted to not contain any cycles. Moreover, a profile HMM consists of three different types of hidden states: match states ($M_k$), insert states ($I_k$) and delete states ($D_k$). These are used to describe symbol frequencies, insertions and deletions, respectively, at a specific position in a sequence. A great example on how to build a profile HMM, which helps to clarify the ideas, can be found in \cite{Yoon2009}. \textcolor{red}{Can I just steel this example?}
