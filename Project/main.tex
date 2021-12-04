@@ -90,7 +90,7 @@ A \textit{left-right model} is
     \label{fig:ChooTopologies}
 \end{figure}
 
-\subsection{Hidden Markov Models}
+\subsection{Hidden Markov Models} \label{Section:HiddenMarkovModels}
 Yoon gives a very nice first introduction to Hidden Markov Models (HMMs): "A hidden Markov model (HMM) is a statistical model that can be used to describe the evolution of observable events that depend on internal factors, which are not directly observable." \cite{Yoon2009}. A HMM, simply put, is a model that comprises of two different parts. The first part is the sequence or the result that can be observed. A possible observed sequence could be a sequence of nucleotides or it could be a chain of events, like 20 dice throws in a row. The second part is a MC, which is \textit{hidden}, i.e. it cannot be observed. This very simple idea gives a very flexible model, which can be used for many different types of problems. The main goal is often to infer the characteristics of the hidden MC from the observed sequence. 
 
 In a HMM, a hidden sequence of states is generated, according to the MC. This sequence will not be observable and will in (almost) all practical cases be considered as unknown. Each of the states creates, or \textit{emits}, an observed value. All these observed values are what make up the observed sequence. The emission follows a multinomial distribution, where each state follows such a distribution with different parameters. An important assumption for the HMM we will deal with is that the parameters of each multinomial only depends on the state to which it belongs \cite{Choo2004}. This means that the emitted value only depends on its respective hidden state and not on other hidden states. A HMM thus represents a doubly stochastic process: the current underlying state in the MC is stochastic, with an added layer of stochasticity in the observed value. Note that each of the hidden states should be able to produce the same symbols, i.e. the same observable values, but in different frequencies \cite{Christianini2006}.
@@ -138,9 +138,7 @@ The first issue that needs to be addressed is: how can the probability $\text{P}
     \text{P}(\textbf{y}|\theta) = \sum_{\forall\textbf{x}_i \in \mathcal{H}^n} \text{P}(\textbf{y}, \textbf{x}_i|\theta) = \sum_{\forall\textbf{x}_i \in \mathcal{H}^n} \text{P}(\mathbf{x}_i|\theta)\text{P}(\mathbf{y}|\mathbf{x}_i,\theta), 
 \label{unfeasibleForward}
 \end{equation}
-where $\mathcal{H}^n$ is the space of all possible state sequences that can yield $\mathbf{y}$. Of course, $\mathcal{H}^n$ can be very large, which makes this calculation computationally infeasible. In fact, $\mathcal{H}^n$ may consist of $m^L$ sequences, since these are all the possible state sequences. Luckily, the \textit{forward algorithm} exists, which uses dynamic programming to solve this issue in a computationally feasible manner. This algorithm has time complexity $\mathcal{O}(Lm^2)$, which is a significant improvement over the exponential solution by straightforward use of equation \eqref{unfeasibleForward}. 
-
-The forward algorithm takes the form 
+where $\mathcal{H}^n$ is the space of all possible state sequences that can yield $\mathbf{y}$. Of course, $\mathcal{H}^n$ can be very large, which makes this calculation computationally infeasible. In fact, $\mathcal{H}^n$ may consist of $m^L$ sequences, since these are all the possible state sequences. Luckily, the \textit{forward algorithm} exists, which uses dynamic programming to solve this issue in a computationally feasible manner. This algorithm has time complexity $\mathcal{O}(Lm^2)$, which is a significant improvement over the exponential solution by straightforward use of equation \eqref{unfeasibleForward}. The forward algorithm is given below.  
 
 \begin{algorithm}
     \caption{Forward Algorithm}\label{alg:Forward}
@@ -172,11 +170,7 @@ Notice that this is equivalent to finding the state sequence that maximizes $\te
 \begin{equation*}
     \text{P}(\mathbf{X}|\mathbf{y}, \theta) = \frac{\text{P}(\mathbf{X}, \mathbf{y}|\theta)}{\text{P}(\mathbf{y}|\theta)}.
 \end{equation*}
-Again, the first solution that comes to mind would be to compare all possible state sequences $m^L$, and use equation \eqref{JointProbSequences}, but this is still computationally infeasible in most cases. Therefore, the \textit{Viterbi algorithm}, which also is based on dynamic programming, exists. The time complexity of the Viterbi algorithm is $\mathcal{O}(Lm^2)$, which is the same as for the forward algorithm. This is a large improvement over the exponential time-complexity of the straightforward solution. 
-
-\textcolor{red}{Continue... Reading from Yoon2009.}
-
-The algorithm is given below. 
+Again, the first solution that comes to mind would be to compare all possible state sequences $m^L$, and use equation \eqref{JointProbSequences}, but this is still computationally infeasible in most cases. Therefore, the \textit{Viterbi algorithm}, which also is based on dynamic programming, exists. The time complexity of the Viterbi algorithm is $\mathcal{O}(Lm^2)$, which is the same as for the forward algorithm. This is a large improvement over the exponential time-complexity of the straightforward solution. The Viterbi algorithm is given below. 
 
 \begin{algorithm}
 \caption{Viterbi Algorithm}\label{alg:Viterbi}
@@ -198,7 +192,9 @@ The algorithm is given below.
 \end{algorithm} 
 Note that $\mathbf{x}^*$ is simple to find based on $x_L^*$; the optimal path $\mathbf{x}^*$ starts at $x_L^*$ and backtracks all the way to $x_0^*$ by using $P(\cdot, \cdot)$. The backtracking ends when the value $-1$ is found in $P$, i.e. when the beginning of the sequence has been reached. 
 
-Also notice that both the forward and the Viterbi algorithms can easily be log-transformed in order to gain a higher numerical stability, by taking logarithms of all values and switching multiplications with additions. 
+Also notice that both the forward and the Viterbi algorithms can easily be $\log$-transformed in order to gain greater numerical stability, by taking logarithms of all values and switching multiplications with additions. 
+
+An important point to make before moving forward is that both the evaluation problem and the decoding problem are related to whether or not an observed sequence can be reasonably modeled by means of a given HMM $\theta$. But how can this model be found in the first place? This is what is often referred to as the \textit{training problem}, which will be covered next. 
 
 \begin{comment}
 \textcolor{red}{CAN write about the backward algorithm if time and if it seems relevant. }
@@ -215,29 +211,23 @@ But why do we care about finding the sequence of individually optimal states? Th
 \end{comment}
 
 \subsubsection{The Training Problem}
-The third issue that needs to be addressed is: how can the HMM parameters be reasonably chosen based on a set of observed sequences? For example, we have a set of sequences $\mathbf{\chi} = \{\mathbf{X}_1, \ldots, \mathbf{X}_G\}$, where each $\mathbf{X}_i, \hspace{0.2em} i \in [1,G]$ is an observed sequence of symbols, that we want to represent with a HMM. The difficulty that needs to be solved is how the parameters of the HMM can be estimated based on the set $\mathbf{\chi}$. This is what is typically called the \textit{training} or \textit{learning} problem, analogously to the need for training any other machine learning model. There exists no optimal way to train the HMM from a limited number of finite observation sequences, but there exists algorithms that can find local maximums in the obsercation probability. Some examples are the Baum-Welch algorithm, standard gradient based methods from optimization or simulation with Monte Carlo expectation maximization (MCEM). 
+The third issue that needs to be addressed is: how can the HMM parameters be reasonably chosen based on a set of observed sequences? For example, we have a set of sequences $\mathbf{\chi} = \{\mathbf{y}_1, \ldots, \mathbf{y}_G\}$, where each $\mathbf{y}_i, \hspace{0.2em} i \in [1,G]$ is an observed sequence of symbols, that we want to represent with a HMM. The difficulty that needs to be solved is how the parameters of the HMM can be estimated based on the set $\mathbf{\chi}$. This is what is typically called the \textit{training} or \textit{learning} problem, analogously to the need for training any other machine learning model. There exists no optimal way to train the HMM from a limited number of finite observation sequences, but there exists algorithms that can find local maximums in the observation probability. Some examples are the Baum-Welch algorithm, standard gradient based methods from optimization or simulation with Monte Carlo expectation maximization (MCEM) \cite{Yoon2009}. For detailed treatments of how the training prblem can be solved, the reader is referred to \cite{Rabiner1989}, \cite{Isaev2006} or \cite{Durbin1998}.
 
-\textcolor{red}{Continue... Reading from Yoon2009. And also can read some from the website linked in the beginning of "Algorithms".}
-
-Introduction to Mathematical Methods in Bioinformatics - Alexander Isaev. 
-
-The parameters of the HMM are estimated, or the model is trained, based on a larger set of sequences, what is often referred to as a training set. In this training data it it essential that the hidden states are also known, in order for the model to be able to "learn" from the data. After all the probabilities are estimated, the model can be used on new data, which is often referred to as the testing set, and we can use the results for predict or infer something about the data. 
-
-\subsubsection{Estimation of Emission Probabilities}
-\cite{Choo2004}
-
-The model parameters can be estimated given some training data, where both the hidden and observed states are known, using the maximum likelihood principle and the EM (expectation maximization) algorithm \cite{Christianini2006}.
-
-\subsubsection{HMM Models}
-In addition to the standard HMM that was described in the previous section, there exists many other variants of the HMM. This section presents several different types, but note that this list is by no means exhaustive. 
+\subsection{HMM Variants}
+There exists many variants of what we will call the standard HMM. For completeness, the standard HMM will be specified first, before the most widely used types of HMMs in bioinformatics will be presented. Note that this list is by noe means exhaustive. 
 
 \begin{comment}
 \subsubsection{Generalized HMMs}
 \textcolor{red}{Changes the distribution of time until state transition (to another state) from geometric to another generalized distribution. Let's see if I have to add it here (depending on if it is used in some of the applicatins in biology. I think this is a continuous time Markov Chain (with sojourn times etc) as learned in StokMod, but not sure. } 
 \end{comment}
 
+\subsubsection{Standard HMM}
+The \textit{standard HMM} is the simplest form of a HMM, which has the most restricting assumptions. In fact, the assumptions described in section \ref{Section:HiddenMarkovModels} all belong to what we will call the standard HMM. Concisely restated, the hidden MC is a discrete-state time-homogeneous first-order MC. Also, often one assumes that the MC is \textit{ergodic}, which means that every state can be reached from any other state in a finite amount of states \cite{Rabiner1989}. Moreover, each state in $\mathcal{H}$ generates exactly one output and can emit every symbol in $\mathcal{S}$. Importantly, the emitted value from each states depends only on that respective state. 
+
+All the assumptions made in the simple model restricts the usefullness of the HMM. However, one can only imagine how the assumptions made in the standard HMM can be tweaked to create a new type of HMM. Some examples of other assumptions are shown next. 
+
 \subsubsection{Profile-HMMs}
-A profile HMM have a specific architecture, which make them suitable for modeling sequence profiles \cite{Yoon2009}. Because of this, the topology of the profile HMM will be explained with multiple sequence alignment in mind. Two simple ways to think of a profile HMM is as an abstract description of a protein family or a statistical summary of multiple sequence alignment \cite{Christianini2006}. A profile HMM is constricted to not contain any cycles. Moreover, a profile HMM consists of three different types of hidden states: match states ($M_k$), insert states ($I_k$) and delete states ($D_k$). These are used to describe symbol frequencies, insertions and deletions, respectively, at a specific position in a sequence. A great example on how to build a profile HMM, which helps to clarify the ideas, can be found in \cite{Yoon2009}. \textcolor{red}{Can I just steel this example?}
+\textit{Profile-HMMs} (pro-HMMs) have specific architectures, which make them suitable for modeling sequence profiles \cite{Yoon2009}. Because of this, in this context, the topology of pro-HMMs are best explained with multiple sequence alignment in mind. Two simple ways to think of a pro-HMM is as an abstract description of a protein family or a statistical summary of multiple sequence alignment \cite{Christianini2006}. A pro-HMM is constructed to not contain any cycles. Moreover, a pro-HMM consists of three different types of hidden states: match states ($M_k$), insert states ($I_k$) and delete states ($D_k$). These are used to describe symbol frequencies, insertions and deletions, respectively, at each specific position in a sequence. A great example on how to build a pro-HMM, which helps to clarify the ideas, can be found in \cite{Yoon2009}. \textcolor{red}{Can I just steel this example?} The illustration from the example is shown in \ref{fig:Yoon2009ProfileHMMExample}.
 
 \begin{figure}
     \centering
@@ -250,7 +240,7 @@ A profile HMM have a specific architecture, which make them suitable for modelin
 The example shows how a profile HMM can be built from a multiple sequence alignment. The $M_k$'s are used to indicate match states, i.e. they represent the case where a symbol in the new observation matches with the state of the profile HMM. The emission probabilities from each match state are easily estimated by using the frequencies of each symbol in the match state. The ungapped HMM can represent ungapped sequences. The states $I_k$ and $D_k$ are added so that the HMM can represent sequences that contain gaps, which makes the profile HMM a much more powerful model compared to the simpler models that describe a multiple sequence alignment, like regular expressions and PSSM. It is important to note that the delete states $D_k$ are silent states; they are placeholders for missing symbols in the consensus sequence of the alignment when compared to a shorter new observed sequence. 
 
 \subsubsection{Pair-HMMs}
-In the context of bioinformatics, a pair HMM is especially useful for finding sequence alignments and evaluating the significant of the alignments \cite{Yoon2009}. To contrast a regular HMM, a pair HMM generates an aligned pair of sequences, instead of only one sequence. An example is shown in \cite{Yoon2009} \textcolor{red}{Kan jeg bare stjele dette eksempelet også!?}
+In the context of bioinformatics, a \textit{pair-HMM} (p-HMM) is especially useful for finding sequence alignments and evaluating the significant of the alignments \cite{Yoon2009}. To contrast the standard HMM, a p-HMM generates an aligned pair of sequences, instead of only one sequence. An example is shown in \cite{Yoon2009} \textcolor{red}{Just steel this example as well!?} The illustration from the example is shown in \ref{fig:Yoon2009PairHMMExample}.
 
 \begin{figure}
     \centering
@@ -301,8 +291,6 @@ Remember that profile HMMs were used to make profiles that represent multiple al
 HMMs do not deal well with correlations between residues, since they assume that each residue depends only on one underlying state \cite{Eddy04}, i.e. it is assumed that the sequence is generated from the hidden state path, where each letter in the sequence only depends on the emission probabilities of its corresponding node in the state path (hidden Markov chain). Since the Markov property is assumed, an HMM has no way of "remembering" any distant correlation between the letters in the sequence alphabet. 
 
 As already noted, Choo et. al writes that "the linear nature of HMM also makes it difficult to capture higher-level information or correlations among amino acids" \cite{Choo2004}.
-
-Standard, Generalized, Pair, Generalized Pair, Profile \cite{Choo2004}.
 
 \section{Applications in Bioinformatics}
 Introduction to Computational Genomics: A Case Studies Approach, Chapter 4. 
@@ -464,6 +452,12 @@ DENNE MÅ FØRES OPP ORDENTLIG!
 
 \bibitem{Rabiner1989}
 Lawrence R. Rabiner (1989) \emph{A tutorial on hidden Markov models and selected applications in speech recognition}, Proceedings of the IEEE, Vol. 77, No. 2, 257-286
+
+\bibitem{Isaev2006}
+Alexander Isaev (2006) \emph{Introduction to Mathematical Methods in Bioinformatics}, Springer-Verlag
+
+\bibitem{Durbin1998}
+R. Durbin, S. Eddy, A. Krogh, G. Mitchison (1998) \emph{Biological Sequence Analysis}, Cambridge University Press
 
 \end{thebibliography}
 
