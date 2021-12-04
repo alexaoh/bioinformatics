@@ -118,6 +118,8 @@ Finally, combining these results, the joint probability of the sequences $\mathb
     \text{P}(\mathbf{X} = \mathbf{x}, \mathbf{Y}= \mathbf{y}) = \text{P}(\mathbf{X}= \mathbf{x})\text{P}(\mathbf{Y}= \mathbf{y}|\mathbf{X}= \mathbf{x}) = \pi(x_0)\mathcal{E}_{x_0, y_0}\prod_{t=2}^L\mathcal{E}_{x_t, y_t}\mathcal{T}_{x_{t-1}, x_t}.
     \label{JointProbSequences}
 \end{equation}
+Keep in mind that the products in equations \eqref{ProbHiddenMC}, \eqref{ProdObservableSeq} and \eqref{JointProbSequences} usually become very small in practice. This can give numerical instability when computing the probabilities. A common trick to solve this is to work with the logarithm of the probabilities. In this way, the multiplicative properties become additive, which mitigates some problems that may occur in the calculations. This is especially important when implementing the algorithms that will be discussed later \cite{Christianini2006}. 
+
 Note that we here assume that the hidden state sequence $\mathbf{x}$ is known, which is usually not the case in practice. The state sequence needs to be inferred from the observed sequence, which is one of the main problems of a HMM, which will be explained in the following. For a more rigorous treatment of this topic, although in the topic of speech recognition, the reader is referred to \cite{Rabiner1989}.
 
 
@@ -126,7 +128,7 @@ http://jedlik.phy.bme.hu/~gerjanos/HMM/node6.html
 
 As Yoon \cite{Yoon2009} and Rabiner \cite{Rabiner1989} point out in their respective articles, there are three issues that need to be resolved in order to be able to use HMMs in practical applications. In the following, these issues will be presented, together with algorithms that are used to address the problems. 
 
-A given HMM will in the following be denoted by $\theta = (\pi, \mathcal{T}, \mathcal{E})$. This means that when we refer to a HMM $\theta$, this means that the HMM is fully specified by the three needed parameters. Moreover, for ease of notation, $\text{P}(\mathbf{Y} = \mathbf{y})$ will be denoted as simply $\text{P}(\mathbf{y})$ in the following. 
+A given HMM will in the following be denoted by $\theta = (\pi, \mathcal{T}, \mathcal{E})$. This means that when we refer to a HMM $\theta$, this means that the HMM is fully specified by the three parameters and that the parameters are known. Moreover, for ease of notation, $\text{P}(\mathbf{Y} = \mathbf{y})$ will be denoted as simply $\text{P}(\mathbf{y})$ in the following. 
 
 \subsubsection{The Evaluation Problem}
 The first issue that needs to be addressed is: how can the probability $\text{P}(\mathbf{y}|\theta)$ be calculated? That is, how can one find the probability of observing the realization $\mathbf{y}$ from a given HMM $\theta$? If the exact underlying state sequence was known, this would have been easily calculated using equation \eqref{JointProbSequences}. However, the underlying state sequence cannot be observed, which means that there may exist many different underlying state sequences that can yield the same observed sequence $\mathbf{y}$. Thus, the first solution that comes to mind would be to use the law of total probability to calculate
@@ -135,31 +137,27 @@ The first issue that needs to be addressed is: how can the probability $\text{P}
     \text{P}(\textbf{y}|\theta) = \sum_{\forall\textbf{x}_i \in \mathcal{H}^n} \text{P}(\textbf{y}, \textbf{x}_i|\theta) = \sum_{\forall\textbf{x}_i \in \mathcal{H}^n} \text{P}(\mathbf{x}_i|\theta)\text{P}(\mathbf{y}|\mathbf{x}_i,\theta), 
 \label{unfeasibleForward}
 \end{equation}
-where $\mathcal{H}^n$ is the space of all possible state sequences that can yield $\mathbf{y}$. Of course, $\mathcal{H}^n$ can be very large, which makes this calculation computationally infeasible. In fact, $\mathcal{H}^n$ may consist of $m^L$ sequences, since these are all possible state sequences. Luckily, the \textit{forward algorithm} exists, which uses dynamic programming to solve this issue in a computationally feasible manner. This algorithm has time complexity $\mathcal{O}(Lm^2)$, which is a significant improvement from the exponential solution proposed by equation \eqref{unfeasibleForward}. \textcolor{blue}{Ikke sikkert at denne notasjonen er nødvendig nå}The algorithm defines the forward variable 
+where $\mathcal{H}^n$ is the space of all possible state sequences that can yield $\mathbf{y}$. Of course, $\mathcal{H}^n$ can be very large, which makes this calculation computationally infeasible. In fact, $\mathcal{H}^n$ may consist of $m^L$ sequences, since these are all the possible state sequences. Luckily, the \textit{forward algorithm} exists, which uses dynamic programming to solve this issue in a computationally feasible manner. This algorithm has time complexity $\mathcal{O}(Lm^2)$, which is a significant improvement over the exponential solution by straightforward use of equation \eqref{unfeasibleForward}. 
 
-\begin{equation}
-\phi(n,i) = \text{P}(\textbf{X}, h_n = i).
-\label{ForwardVariable}
-\end{equation}
-\textcolor{red}{Continue... This is read from Yoon2009.}
-
-The forward algorithm takes the form \textcolor{red}{Gå gjennom og sjekk at dette stemmer!}
+The forward algorithm takes the form 
 
 \begin{algorithm}
     \caption{Forward Algorithm}\label{alg:Forward}
     \begin{algorithmic}
         \STATE $V \gets \text{array}(m \times (L+1))$
-        \STATE $i \gets 0$
-        \STATE $V(0,0) \gets 1$
-        \STATE $V(k,0) \gets 0, \forall k > 0$
-        \FOR{$i = 1, 2, \ldots, L$}
-            \STATE $V(l,i) \gets \mathcal{E}_{x_l, \mathbf{y}_i}\sum_kV(k, i-1)\mathcal{T}_{x_k,x_l}$
+        \FOR{$i = 0, 1, \ldots, m-1$}
+            \STATE $V(i,0) \gets \pi(x_i) \mathcal{E}_{x_i,y_0}$
         \ENDFOR
-        \RETURN $\text{P}(\mathbf{y}|\theta) = \sum_{k}V(k,L)$
+        \FOR{$i = 1, 2, \ldots, L$}
+            \FOR{$j = 0,1,\ldots,m-1$}
+                \STATE $V(j,i) \gets \mathcal{E}_{x_j, y_i}\sum_{k=0}^{m-1}V(k, i-1)\mathcal{T}_{x_k,x_j} $
+            \ENDFOR
+        \ENDFOR
+        \RETURN $\text{P}(\mathbf{y}|\theta) = \sum_{k=0}^{m-1}V(k,L)$
     \end{algorithmic} 
 \end{algorithm}
 
-Note that the forward algorithm gives a \textit{confidence measure} on the observed sequence - how confident are we that the observed sequence could have been generated by the model $\theta$. If the calculated probability is lower then some "background distribution" of similar sequences, then the probability of the sequence being emitted by the HMM is low and one would conclude that the HMM is not a good model for the observed sequence. However, if the probability is high, then we can conclude that the HMM can be used in the situation. When this is verified, we tackle the \textit{decoding problem}.
+Note that the forward algorithm gives a \textit{confidence measure} on the observed sequence - how confident are we that the observed sequence could have been generated by the model $\theta$. This problem is also sometimes referred to as the \textit{scoring problem}, since $\text{P}(\mathbf{y}|\theta)$ is a way to score a new observed sequence based on the given HMM \cite{Yoon2009}. If the calculated probability is lower then some "background distribution" of similar sequences, then the probability of the sequence being emitted by the HMM is low and one would conclude that the HMM is not a good model for the observed sequence. However, if the probability is high, then we can conclude that the HMM can be used in the situation. When this is verified, we tackle the \textit{decoding problem}.
 
 \subsubsection{The Decoding Problem}
 The second issue that needs to be addressed is: what state path $\mathbf{x}$ maximizes the probability of emitting the observed sequence $\mathbf{y}$, i.e. how can the \textit{optimal state path} be found? This follows the principle of maximum likelihood, which says that we should choose the hidden state path that maximizes the likelihood of yielding the observed sequence. Our best bet when trying to infer the hidden state path from the observed sequence is exactly the one that gives the maximum probability of obtaining the observed sequence. In other words, the hidden state sequence that best explains the observed sequence is the optimal state path
