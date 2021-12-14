@@ -9,4 +9,7 @@ Project/main.synctex.gz
 Project/*
 !Project/main.tex
 !Project/main.pdf
+!Project/main.Rnw
+!Project/starter.R
+!Project/compile.sh
 
