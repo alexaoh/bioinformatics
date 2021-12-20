@@ -1,0 +1,245 @@
+---
+title: "Task 6"
+author: "Alex, Alex and Helena"
+date: "14/12/2021"
+output: html_document
+---
+
+# Task 6: Bioinformatics 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1) Sequences generation from emission values and their hidden states:
+
+### a. Create a R function to generate nucleotide sequences (A, C, G, T) from the vector of initial probabilities of states, the transition matrix, and the emission matrix. Choose the values yourself.
+
+We create a function in which you can enter 4 inputs: the transition and emission matrix, the initial state probabilities and the length of the sequence.
+
+```{r}
+generate.sequences <- function(Tr, Em, n, p){
+    # Tr = transition matrix.
+    # Em = emission matrix.
+    # n = length of generated sequence.
+    # p = initial state probabilities. 
+    
+  symbols <- c("A", "C", "G", "T")
+  states <- c(1, 2) # 1 = AT and 2 = CG
+  
+  # x are hidden states and y are observed symbols. 
+  x <- y <- rep(NA, length.out = n)
+  
+  x[1] <- sample(states, size = 1, prob = p)
+  y[1] <- sample(symbols,size = 1,replace=T,prob = Em[x[1],])
+  
+  for(i in 1:(n-1)){
+    x[i+1] <- sample(states, size = 1, prob = Tr[,x[i]])
+    y[i+1] <- sample(symbols, size = 1, prob = Em[x[i], ])
+  }
+  return(cbind("Hidden" = x, "Obs" = y))
+  
+}
+```
+
+### b. Obtain a nucleotide sequence of size 10,000.
+
+#### i. In the first 50 nucleotides show the sequence of states and nucleotides together.
+
+We generate a 50 nucleotide-sequence by using the function created in the 1.a. section.
+
+First, we must fix the Emission matrix, the Transition matrix, the legnth and the initial probabilities. We have two states: rich in CG or rich in AT. The emission matrix tell us the probability to have x nucleotide (A, T, C, or G) in one of the two states (CG or AT). The Transition matrix determines the probability to change the state or to stay in the same state
+
+```{r}
+# Transition matrix (A):
+A <- matrix(c(0.9, 0.1, 0.1, 0.9), nrow = 2)
+rownames(A) <- c("AT", "CG")
+colnames(A) <- c("AT", "CG")
+A
+
+# Emission matrix (E):
+E <- matrix(c(0.4, 0.1, 0.1, 0.4, 0.1, 0.4, 0.4, 0.1), nrow = 2)
+rownames(E) <- c("AT", "CG")
+colnames(E) <- c("A", "C", "G", "T")
+E
+
+# Initial probabilities
+p <- c(0.5,0.5)
+
+# Length of the sequence
+n <- 10000
+```
+
+```{r}
+df <- generate.sequences(A, E, n, p)
+t(df[1:50,])
+```
+
+#### ii. Make a graph that shows the percentage of AT and CG in the generated sequence for a window of size 50. Also, add the hidden state to the graph.
+
+We add the probabilities of having the state rich in AT or rich in CG in two empty vectors, which we will add eventually. We create a graph in which we present the frequencies of each state. In this graph we can observe which state is more likely with respect of the position of the sequence, taking into account the previous state. The locations where both lines cross are the changes of state. We observe some regions with a clear difference of the probability between both states. The red line indicates the regions enriched with nucleotides A or T, while the blue line are the regions with Cs or Gs.
+
+```{r, fig.align='center'}
+richCG <- rep(0,9950); richAT <- rep(0,9950)
+
+for(i in 1:9950){
+  length <- i + 50
+  as <- sum(df[i:length,1] == 1)/51
+  cs <- sum(df[i:length,1] == 2)/51
+  gs <- sum(df[i:length,1] == 3)/51
+  ts <- sum(df[i:length,1] == 4)/51
+  richCG[i] <- cs + gs
+  richAT[i] <- as + ts
+}
+
+plot(richAT, type="l", ylim=c(0,1), xlab = "Length of the sequence", ylab="Probability of state", col = "red")
+lines(richCG, col="blue")
+```
+
+To make it easier to observe, we plot now only the first 1000 nucleotides.
+
+```{r, fig.align='center'}
+richCG <- rep(0,950); richAT <- rep(0,950)
+
+for(i in 1:950){
+  length <- i + 50
+  as <- sum(df[i:length,1] == 1)/51
+  cs <- sum(df[i:length,1] == 2)/51
+  gs <- sum(df[i:length,1] == 3)/51
+  ts <- sum(df[i:length,1] == 4)/51
+  richCG[i] <- cs + gs
+  richAT[i] <- as + ts
+}
+
+plot(richAT, type="l", ylim=c(0,1), xlab = "Length of the sequence", ylab="Probability of state", col = "red")
+lines(richCG, col="blue")
+```
+
+#### iii. Make a graph that shows the percentage of AT and CG in the generated sequence for a window of size 150. Also, add the hidden state to the graph.
+
+We repeat the previous section, although we increase the window size from 50 to 150. This allows us to observe the regions where the state changes.
+
+```{r, fig.align='center'}
+richCG2 <- rep(0,9850)
+richAT2 <- rep(0,9850)
+
+for(i in 1:9850){
+  length <- i + 150
+  as <- sum(df[i:length,1] == 1)/151
+  cs <- sum(df[i:length,1] == 2)/151
+  gs <- sum(df[i:length,1] == 3)/151
+  ts <- sum(df[i:length,1] == 4)/151
+  richCG2[i] <- cs + gs
+  richAT2[i] <- as + ts
+}
+
+plot(richAT2, type="l", ylim=c(0,1), xlab = "Length of sequence", ylab="Probability of state", col = "red")
+lines(richCG2, col="blue")
+```
+
+### c. Obtain 3 nucleotide sequences of size 20. Send these sequences and the emission, transition and initial probability matrices to the classmate who will be used to carry out section 2 of this task.
+
+We create 3 sequences of 20 nucleotides each.
+
+```{r}
+chain1<- generate.sequences(A, E, 20, p)
+t(chain1)
+
+chain2 <- generate.sequences(A, E, 20, p)
+t(chain2)
+
+chain3 <- generate.sequences(A, E, 20, p)
+t(chain3)
+```
+
+
+## 2) Estimation of the hidden sequence of states of the hidden Markov chain
+
+### a. From one of the nucleotide sequences of size 20 that you have received and the emission, transition and initial probability matrices of another group, the sequence of hidden states must be estimated.
+
+```{r}
+# Data from Raul and Jordi:
+
+# Transition matrix (A_partner):
+A_partner <- matrix(c(0.4, 0.35, 0.6, 0.65), nrow = 2)
+rownames(A_partner) <- c("AT", "CG")
+colnames(A_partner) <- c("AT", "CG")
+A_partner
+
+# Emission matrix (E_partner):
+E_partner <- matrix(c(0.4, 0.2, 0.1, 0.3, 0.1, 0.3, 0.4, 0.2), nrow = 2)
+rownames(E_partner) <- c("AT", "CG")
+colnames(E_partner) <- c("A", "C", "G", "T")
+E_partner
+
+# Initial probabilities
+p_partner <- c(0.5,0.5)
+
+# Chain_1
+chain_partner <- matrix(c("A","C","G","G","A","A","T","G","C","C","T","A","A","A","T","G","A","G","A","G","AT","GC","AT","GC","GC","AT","GC","GC","GC","GC","GC","GC","AT","AT","GC","GC","GC","GC","GC","GC"), 2, byrow = TRUE) 
+chain_partner <- t(chain_partner)
+```
+
+#### i. Implement the Viterbi algorithm to display partial results for each position in the nucleotide sequence, the score table, and the reconstruction table. (choose whether to use the log2 (p) transformation or not).
+
+We implement the Viterbi algorithm in order to find the hidden state of the sequence of another group. This function is provided in the section 10.6 Hidden Markov Models from the book *Applied Statistics for Bioinformatics using R*. 
+
+```{r}
+viterbi <- function(A,E,x) {
+v <- matrix(NA, nr=length(x), nc=dim(A)[1])
+v[1,] <- 0; v[1,1] <- 1
+for(i in 2:length(x)) {
+for (l in 1:dim(A)[1]) {v[i,l] <- E[l,x[i]] * max(v[(i-1),] * A[l,])}
+}
+return(v)
+}
+vit <- viterbi(A,E,chain_partner[,1])
+vitrowmax <- apply(vit, 1, function(x) which.max(x))
+hiddenstate <- chain_partner[,2]
+table(hiddenstate, vitrowmax)
+```
+
+Once we have predicted the sequence with the hidden states, we compare our results with the ones given by another group.
+
+```{r}
+datt <- cbind(chain_partner,vitrowmax)
+colnames(datt) <- c("observation","hidden_state","predicted state")
+t(datt)
+```
+We observe that the hidden state and the predicted state are not equal, suggesting that the Viterbi algorithm is not quite a good algorithm to predict the states.
+
+#### ii. Implement the Forward algorithm to display partial results for each position in the nucleotide sequence, the score table, and the reconstruction table.
+
+Now we use the Forward algorithm. 
+
+```{r}
+forward <-function(A,E,x) {
+  f <- matrix(NA, nr=length(x), nc=dim(A)[1])
+  f[1,] <- 0; f[1,1] <- 1
+  for(i in 2:length(x)) {
+    for (l in 1:dim(A)[1]) {
+      f[i,l] <- E[l,x[i]] * sum(f[(i-1),] * A[l,])
+      }
+  }
+  return(f)
+}
+
+forw <- forward(A_partner,E_partner,chain_partner[,1])
+forwwmax <- apply(forw, 1, function(x) which.max(x))
+hiddenstate <- chain_partner[,2]
+table(hiddenstate, forwwmax)
+```
+
+Compare our results with the ones given by another group.
+
+```{r}
+datt1 <- cbind(chain_partner,forwwmax)
+colnames(datt1) <- c("observation","hidden state","predicted state")
+t(datt1)
+```
+We can see the same situation, the algorithm is not really good.
+
+#### b. Compare the estimated results of hidden states with the true states. Finally, present some conclusions.
+
+As said with each comparison, neither the viterbi nor the forward algorithm do a proper prediction of the states.
+
