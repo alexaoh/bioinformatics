@@ -10,6 +10,8 @@ Project/*
 !Project/main.tex
 !Project/main.pdf
 !Project/main.Rnw
+!Project/main2.tex
+!Project/main2.pdf
+!Project/main2.Rnw
 !Project/starter.R
 !Project/compile.sh
-

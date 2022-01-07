@@ -1,54 +1,4 @@
-\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
-% maxwidth is the original width if it is less than linewidth
-% otherwise use linewidth (to make sure the graphics do not exceed the margin)
-\makeatletter
-\def\maxwidth{ %
-  \ifdim\Gin@nat@width>\linewidth
-    \linewidth
-  \else
-    \Gin@nat@width
-  \fi
-}
-\makeatother
-
-\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
-\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
-\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
-\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
-\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
-\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
-\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
-\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
-\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
-\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
-\let\hlipl\hlkwb
-
-\usepackage{framed}
-\makeatletter
-\newenvironment{kframe}{%
- \def\at@end@of@kframe{}%
- \ifinner\ifhmode%
-  \def\at@end@of@kframe{\end{minipage}}%
-  \begin{minipage}{\columnwidth}%
- \fi\fi%
- \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
- \colorbox{shadecolor}{##1}\hskip-\fboxsep
-     % There is no \\@totalrightmargin, so:
-     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
- \MakeFramed {\advance\hsize-\width
-   \@totalleftmargin\z@ \linewidth\hsize
-   \@setminipage}}%
- {\par\unskip\endMakeFramed%
- \at@end@of@kframe}
-\makeatother
-
-\definecolor{shadecolor}{rgb}{.97, .97, .97}
-\definecolor{messagecolor}{rgb}{0, 0, 0}
-\definecolor{warningcolor}{rgb}{1, 0, 1}
-\definecolor{errorcolor}{rgb}{1, 0, 0}
-\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
-
-\usepackage{alltt}
+\documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -64,18 +14,21 @@
 \title{Hidden Markov Models in Bioinformatics}
 \author{Alexander J Ohrt - UPC BarcelonaTech}
 \date{\today}
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+
 \begin{document}
 \maketitle
 
 \tableofcontents
 
 \section{Introduction}
-The stochastic models known as Hidden Markov models (HMMs) are popular tools in the field of Bioinformatics. They are versatile models that can be used for many different purposes. Some of the problems that can be solved with different variants of HMMs are pairwise sequence alignment (PSA), multiple sequence alignment (MSA), protein structure prediction, protein function prediction, segmentation and protein homology detection. Note that this is by no means an exhaustive list, but only a few examples of problems where HMMs have been successfully applied. 
+\textcolor{red}{These two first parts should be reviewed (perhaps written when done with the rest of the report)}
+Hidden Markov models (HMMs) are popular tools in the field of Bioinformatics. They are versatile stochastic models that can be used for many different purposes. Some of the problems that can be solved with different variants of HMMs are pairwise sequence alignment (PSA), multiple sequence alignment (MSA), protein structure prediction, protein function prediction, segmentation and protein homology detection. Note that this is by no means a \textcolor{red}{uttømmende} list,but only a few examples of problems where HMMs have been successfully applied. 
+
+This report will present the uses of Hidden Markov models (HMMs) in Bioinformatics. It will explain and highlight why they are populaar alternative tools for solving a wide range of problems in the field. In order to understand why HMMs are useful, and why they can be used effectively, some background on stochastic processses and Markov Chains is needed. Moreover, for completeness, a brief theoretical construct of some different HMMs will be done. In the remaining part of the report, a range of problems in Bioinformatics will be presented, first solved without the use of HMMs, then contrasted with the HMM based solutions. This will hopefully highlight why HMMs are effective alternatives. Note that this report is by no means extensive; there exists a plethora of theory and problems where the HMMs can be used. 
 
 \section{Objectives}
 
-The main objective of this report is to explain why HMMs are widely used in Bioinformatics. It will explain and highlight why they are popular alternative tools for solving a wide range of problems in the field. In order to understand why HMMs are useful, and why they can be used effectively, some background on stochastic processses and Markov Chains is needed. Moreover, for completeness, a brief theoretical construct of some different HMMs will be done, alongside the most important algorithms for working with the models in practice. The experienced reader may skip these sections. In the remaining part of the report, a range of problems in Bioinformatics will be presented, first solved without the use of HMMs, then contrasted with the HMM based solutions. This will hopefully highlight why HMMs are effective alternatives. Finally, some practical examples in the open-source programming language R will be developed. Note that this report is by no means exhaustive; there exists a plethora of theory and problems where the HMMs can be used. 
+The main objective of this report is to explain why HMMs are widely used in Bioinformatics. Several of the mentioned problems in Bioinformatics will be presented, with common solutions. First of all, solutions that are not based on HMMs will be shown, with their strengths and weaknesses. These will be contrasted with solution based on HMMs, which in all cases yield alternative methods which oftentimes perform better in some respect. For completeness, the reader should get a quick introduction to the vast theoretical background for HMMs, which includes a quick look at Markov Chains, the Hidden Markov models and different types of them. Furthermore, the most important algorithms for working with HMMs in practice are presented. For the experienced reader, the section on the theoretical background may be skipped. Finally, some practical examples in the open-source programming language R will be developed. 
 
 \section{Theoretical Background}
 
@@ -117,15 +70,24 @@ A MC is completely specified by $\pi$ and $\mathcal{T}$ (where $\mathcal{H}$ is 
 \end{align*}
 where the second inequality holds because of the Markov property. Also, note that $\pi(x_0)$ refers to the probability that the initial state is $x_0$. Hence, it is apparent that calculating the probability of a specific realization of the MC is very simple. 
 
+\textcolor{red}{Could discuss stationarity and other properties also, if I think it is relevant for the rest}
+
 For a more rigorous treatment of stochastic processes and MCs, the reader is referred \cite{Pinsky2011}.
 
 \subsubsection{Markov Chain Topologies}
-The topology of a MC refers to which state transitions are permitted and prohibited, i.e. what the values in the transition probability matrix are. There exists many different ways of constructing MCs. Figure \ref{fig:ChooTopologies} gives some simple graphical explanations of these models. The figure is lent from \cite{Choo2004}, where more details about this fact can be found. 
+\textcolor{red}{Perhaps not that important.}
+The topology of a MC refers to which state transitions are permitted and prohibited, i.e. what the values in the transition probability matrix are. There exists many different ways of constructing MCs. As inspired by Choo and colleagues, three different topologies will be highlighted here \cite{Choo2004}. Figure \ref{fig:ChooTopologies} gives some simple graphical explanations of these models. 
+
+A \textit{fully connected model}, as the name suggests, yields a complete directed graph. This means there are no zero entries in the transition probability matrix, except the possibility of zero entries in the diagonal, which would mean that a loop in the given state is not possible. 
+
+A \textit{circular model} is
+
+A \textit{left-right model} is
 
 \begin{figure}
     \centering
     \includegraphics[width = \textwidth]{ChooHMMTopologies.png}
-    \caption{Examples of different MC topologies. Credit to Choo et al. for the figure \cite{Choo2004}.}
+    \caption{Examples of the three highlighted topologies stolen from Choo.}
     \label{fig:ChooTopologies}
 \end{figure}
 
@@ -164,6 +126,8 @@ Note that we here assume that the hidden state sequence $\mathbf{x}$ is known, w
 
 
 \subsection{Basic Problems for HMMs}
+http://jedlik.phy.bme.hu/~gerjanos/HMM/node6.html
+
 As Yoon \cite{Yoon2009} and Rabiner \cite{Rabiner1989} point out in their respective articles, there are three issues that need to be resolved in order to be able to use HMMs in practical applications. In the following, these issues will be presented, together with algorithms that are used to address the problems. 
 
 A given HMM will in the following be denoted by $\theta = (\pi, \mathcal{T}, \mathcal{E})$. This means that when we refer to a HMM $\theta$, this means that the HMM is fully specified by the three parameters and that the parameters are known. Moreover, for ease of notation, $\text{P}(\mathbf{Y} = \mathbf{y})$ will be denoted as simply $\text{P}(\mathbf{y})$ in the following. 
@@ -351,7 +315,7 @@ EXTRA: COULD MENTION IF TIME
 Pair Hidden Markov models on tree structures (PHHMTS) can be used for aligning trees. Since most RNA secondary structures can be represented as trees, this provides a useful framework for aligning RNA sequences. 
 
 \subsection{Multiple Sequence Alignment}\label{Section:MSA}
-Multiple sequence alignment (MSA) is commonly used to find conserved regions in a group of sequences and/or predicting protein structures. Functional biological sequences typically come in families, which means that one is interested in discovering possible relationships between a sequence and a sequence family. Despite the fact that sequences will have diverged from each other in evolution, MSA can be used to identify which sequences belong to a family, in order to allow for inferences about their function \cite{Durbin1998}. This application of MSA will be studied further in sections \ref{Section:ProtHomoDetect}, \ref{Section:ProtPredFunc} and \ref{Section:ProtSeqClass}. Moreover, MSA is interesting in the case of protein structure prediction, because one can align structural data instead of sequences \cite{Eddy1998}. This application of MSA will be further discussed in section \ref{Section:ProtStructurePred}. 
+Multiple sequence alignment (MSA) is commonly used to find conserved regions in a group of sequences and/or predicting protein structures. Functional biological sequences typically come in families, which means that one is interested in discovering possible relationships between a sequence and a sequence family. Despite the fact that sequences will have diverged from each other in evolution, MSA can be used to identify which sequences belong to a family, in order to allow for inferences about their function \cite{Durbin1998}. Moreover, MSA is interesting in the case of protein structure prediction, because one can align structural data instead of sequences \cite{Eddy1998}. This application of MSA will be further discussed in section \ref{Section:PrtoStructurePred}. 
 
 In contrast to PSA, there does not exist any optimal algorithms to solve the multiple alignment problem. However, there exists a variety of heuristic methods for solving it. One possible solution is to reduce the multiple alignment problem down to a set of pairwise comparisons between the sequences, in an orderly fashion, in order to end up with the multiple alignment in the end. Here one can choose to use either the optimal algorithms or the heuristic algorithms when performing the pairwise alignment. One type of methods that employs this paradigm is referred to as \textit{progressive sequence alignment}. More details on a progressive algorithm that uses Needleman-Wunsch for the pairwise alignment can be found in \cite{Feng1987}. Some commonly available implementations of this solution include the T-Coffee and the Clustal package \cite{EMBL-EBI-Multiple}. Another type of methods that uses this paradigm is referred to as \textit{iterative alignment}. These methods are slightly different than the progressive methods, since they allow realignment of the pairwise sequences during multiple iterations, where the progressive methods depend highly on the initial pairwise alignment of the first two sequences \cite{BioInfoOrgMSA}. One popular openly available implementation of an iterative method is MUSCLE \cite{EMBL-EBI-Multiple}. 
 
@@ -374,10 +338,31 @@ But how can the HMMs be used to represent motifs with variable length gaps? pro-
 
 Note that the problem of indentifying the motifs is not discussed in detail here, as this is a much more complicated problem compared to simply representing the motifs. However, this problem is highly similar to multiple local alignment. An example of an algorithm to solve this problem is given in chapter 10.3 in \cite{Christianini2006}, which is a variant of the Gibbs sampling algorithm based on PSSMs. 
 
-\subsection{Protein Homology Detection}\label{Section:ProtHomoDetect}
-Goal: Determine which proteins are derived from a common ancestor. 
+\subsection{Protein Structure Prediction}\label{Section:PrtoStructurePred}
+Is connected to homology detection. More in \cite{Choo2004}.
 
-\textcolor{red}{How is this solved without HMMs?}
+Profile HMMs can be used to "model sequences of protein secondary structure symbols: helix (H), strand (E) and coil (C)" \cite{Yoon2009}. This model can be used to recognize the three-dimensional fold of new protein sequences based on their secondary protein structure predictions. 
+
+Also page 79 in Introduction to Mathematical Methods in Bioinformatics. 
+
+Eddy 1998 mentions this use of profile-HMMs as well. It has a part on protein fold recognition that could be interesting to use!!
+
+\subsection{Prediction of Function}
+HMMs are used to make probabilistic statements about the function of proteins and thus, they can also be used to assign proteins to families of unknown function \cite{Christianini2006}. \textcolor{red}{Is this a step in Genome Annotation? Perhaps they should be merged then! Or multiple sequence alignment?}
+
+Goal: Infer functional similarity \textcolor{red}{Could be merged with "Prediction of Function" perhaps?}.
+
+\subsection{Segmentation}
+Segmentation is about defining exact boundaries between distinct regions with different chemical properties. Moreover, segmentation is about defining larger sequences of heterogeneous nucleotide in genome and to identify biological features that are responsible for the heterogeneity that is observed \cite{Christianini2006}. Some classical methods are ...
+
+HMMs can be used effectively for segmentation as well... They can help to define regions of gene and protein sequences with various chemical properties \cite{Christianini2006}. 
+
+Example 4.2 in \cite{Christianini2006} shows an example of segmentation using HMMs.
+
+In the setting of segmentation, the hidden states are interpreted as different types of the sequence and the hidden alphabet is typically very small. The underlying MC is cyclic in this case, allowing returns to the same state, i.e. to the same type of sequence, many times during the simulation \cite{Christianini2006}. 
+
+\subsection{Protein Homology Detection}
+Goal: Determine which proteins are derived from a common ancestor. 
 
 \textcolor{red}{Not sure if the following fits in here.}
 Characterize sets of homologous proteins (gene families) based on common patterns in their sequence. This allows us to determine if a new protein belongs to a certain family or not \cite{Christianini2006}. In thi case HMMs can be used to provide a more flexible characterization of sequence patterns. This, in comparison to the simpler way of using multiple alignment to construct a PSSM, also works well for cases which include gaps of variable length, which is a case where the multiple alignment method does not work well \cite{Christianini2006}. This type of homology detection is done with profile HMMs. "proﬁle HMMs encode position-speciﬁc information about
@@ -389,49 +374,9 @@ Feature-based Profile HMMs can be used to improve the performance of remote prot
 
 \textcolor{red}{This is just an application of multiple sequence alignment, no? So perhaps those two can be merged?}
 
-\subsection{Prediction of Function}\label{Section:ProtPredFunc}
-
-\textcolor{red}{How is this solved without HMMs?}
-
-HMMs are used to make probabilistic statements about the function of proteins and thus, they can also be used to assign proteins to families of unknown function \cite{Christianini2006}. \textcolor{red}{Is this a step in Genome Annotation? Perhaps they should be merged then! Or multiple sequence alignment?}
-
-Goal: Infer functional similarity \textcolor{red}{Could be merged with "Prediction of Function" perhaps?}.
-
-\subsection{Protein Sequence Classification}\label{Section:ProtSeqClass}
-
-\textcolor{red}{How is this solved without HMMs?}
-
-Profile HMMs (analagously to multiple sequence alignment). 
-
-
-\subsection{Protein Structure Prediction}\label{Section:ProtStructurePred}
-
-\textcolor{red}{How is this solved without HMMs?}
-
-Is connected to homology detection. More in \cite{Choo2004}.
-
-Profile HMMs can be used to "model sequences of protein secondary structure symbols: helix (H), strand (E) and coil (C)" \cite{Yoon2009}. This model can be used to recognize the three-dimensional fold of new protein sequences based on their secondary protein structure predictions. 
-
-Also page 79 in Introduction to Mathematical Methods in Bioinformatics. 
-
-Despite the vast improvements the HMMs have yielded, Eddy notes that "Profile HMMs and HMM-based gene finders have probably been the most successful applications of HMMs in computational biology. On the other hand, protein secondary structure prediction is an area in which the state of the art is neural net methods that outperform HMM methods by using extensive local correlation information that is not necessarily easy to model in an HMM" \cite{Eddy1998}. This shows that the HMMs that are used up until now are not the end all be all for statistical methods in bioinformatics, and that today's most successful method may be surpassed in the future. 
-
-\subsection{Segmentation}
-
-\textcolor{red}{How is this solved without HMMs?}
-
-Segmentation is about defining exact boundaries between distinct regions with different chemical properties. Moreover, segmentation is about defining larger sequences of heterogeneous nucleotide in genome and to identify biological features that are responsible for the heterogeneity that is observed \cite{Christianini2006}. Some classical methods are ...
-
-HMMs can be used effectively for segmentation as well... They can help to define regions of gene and protein sequences with various chemical properties \cite{Christianini2006}. 
-
-Example 4.2 in \cite{Christianini2006} shows an example of segmentation using HMMs.
-
-In the setting of segmentation, the hidden states are interpreted as different types of the sequence and the hidden alphabet is typically very small. The underlying MC is cyclic in this case, allowing returns to the same state, i.e. to the same type of sequence, many times during the simulation \cite{Christianini2006}. 
 
 \subsection{Gene Prediction / Genomic Annotation (?) / Gene Finding (?)}
 \textcolor{red}{Is Gene Prediction and Genomic Annotation (and Gene Finding) the same problem? Two different words for the same name or are they slightly different problems, with different goals in mind?}
-
-\textcolor{red}{How is this solved without HMMs?}
 
 HMMs are employed to find eukaryotic genes and to find pseudogenes, which look like functioning genes except for some misplaced stop codons. They are very useful for these problems because of their flexibility \cite{Christianini2006}.
 
@@ -443,11 +388,13 @@ Eukaryotic genes can be modeled using HMMs \cite{Yoon2009}.
 
 Pair HMMs can be used for gene prediction \cite{Yoon2009}.
 
-\subsection{RNA Structural Alignment}
 
-\textcolor{red}{How is this solved without HMMs?}
+\subsection{Protein Sequence Classification}
 
-As explained when talking about context-censitive HMMs (csHMMs), profile-csHMMs can be used to perform structural alignment of RNA and performing similarity searches, analagously to how the profile-HMMs can be used to perform multiple alignment of DNA or proteins and performing similarity searches in these cases. RNA sequence analysis is often of high computational complexity, because the alignment algorithms have to deal with base-pair correlations in the sequences that may be very complicated. More about this problem in \cite{Yoon2009}.
+Profile HMMs (analagously to multiple sequence alignment). 
+
+
+
 
 \subsection{Base-calling}
 \cite{Yoon2009}
@@ -455,40 +402,24 @@ As explained when talking about context-censitive HMMs (csHMMs), profile-csHMMs 
 \cite{Yoon2009}
 \subsection{ncRNA Identification}
 \cite{Yoon2009}
+\subsection{RNA Structural Alignment}
+As explained when talking about context-censitive HMMs (csHMMs), profile-csHMMs can be used to perform structural alignment of RNA and performing similarity searches, analagously to how the profile-HMMs can be used to perform multiple alignment of DNA or proteins and performing similarity searches in these cases. RNA sequence analysis is often of high computational complexity, because the alignment algorithms have to deal with base-pair correlations in the sequences that may be very complicated. More about this problem in \cite{Yoon2009}.
 
 \section{Examples in R}
 
 See below how on how to add code to latex (with knitr). Pretty cool!
 
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{library}\hlstd{(MASS)}
-\hlkwd{data}\hlstd{(crabs)}
-\hlkwd{summary}\hlstd{(crabs[,}\hlnum{4}\hlopt{:}\hlnum{7}\hlstd{])}
-\end{alltt}
-\begin{verbatim}
-##        FL              RW              CL              CW       
-##  Min.   : 7.20   Min.   : 6.50   Min.   :14.70   Min.   :17.10  
-##  1st Qu.:12.90   1st Qu.:11.00   1st Qu.:27.27   1st Qu.:31.50  
-##  Median :15.55   Median :12.80   Median :32.10   Median :36.80  
-##  Mean   :15.58   Mean   :12.74   Mean   :32.11   Mean   :36.41  
-##  3rd Qu.:18.05   3rd Qu.:14.30   3rd Qu.:37.23   3rd Qu.:42.00  
-##  Max.   :23.10   Max.   :20.20   Max.   :47.60   Max.   :54.60
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+<<>>=
+library(MASS)
+data(crabs)
+summary(crabs[,4:7])
+@
 
 \begin{center}
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-2-1} 
-\end{knitrout}
+<<echo = FALSE>>=
+boxplot(FL ~ sp, data=crabs)
+@
 \end{center}
-
-\subsection{pro-HMMs in R: `aphid` library}
-
-https://cran.r-project.org/web/packages/aphid/vignettes/aphid-vignette.html
 
 
 \subsection{CG-islands and the "Fair Bet Casino"}

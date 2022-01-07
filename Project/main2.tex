@@ -1,4 +1,54 @@
-\documentclass{article}
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -14,7 +64,7 @@
 \title{Hidden Markov Models in Bioinformatics}
 \author{Alexander J Ohrt - UPC BarcelonaTech}
 \date{\today}
-
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 \maketitle
 
@@ -22,11 +72,13 @@
 
 \section{Introduction}
 \textcolor{red}{These two first parts should be reviewed (perhaps written when done with the rest of the report)}
+Hidden Markov models (HMMs) are popular tools in the field of Bioinformatics. They are versatile stochastic models that can be used for many different purposes. Some of the problems that can be solved with different variants of HMMs are pairwise sequence alignment (PSA), multiple sequence alignment (MSA), protein structure prediction, protein function prediction, segmentation and protein homology detection. Note that this is by no means a \textcolor{red}{uttømmende} list,but only a few examples of problems where HMMs have been successfully applied. 
+
 This report will present the uses of Hidden Markov models (HMMs) in Bioinformatics. It will explain and highlight why they are populaar alternative tools for solving a wide range of problems in the field. In order to understand why HMMs are useful, and why they can be used effectively, some background on stochastic processses and Markov Chains is needed. Moreover, for completeness, a brief theoretical construct of some different HMMs will be done. In the remaining part of the report, a range of problems in Bioinformatics will be presented, first solved without the use of HMMs, then contrasted with the HMM based solutions. This will hopefully highlight why HMMs are effective alternatives. Note that this report is by no means extensive; there exists a plethora of theory and problems where the HMMs can be used. 
 
 \section{Objectives}
 
-The main objective of this report is to explain why HMMs are very widely used in Bioinformatics. Several problems in the field of study will be presented, with common solutions. First of all, solutions that are not based on HMMs will be shown, with their strengths and weaknesses. These will be contrasted with solution based on HMMs, which in all cases yield alternative methods which oftentimes perform better in some respect. For completeness, the reader should get a quick introduction to the vast theoretical background for HMMs, which includes a quick look at Markov Chains, the Hidden Markov models and different types of them. Furthermore, the most important algorithms for working with HMMs in practice are presented. For the experienced reader, the section on the theoretical background may be skipped. Finally, some practical examples in the open-source programming language R will be developed. 
+The main objective of this report is to explain why HMMs are widely used in Bioinformatics. Several of the mentioned problems in Bioinformatics will be presented, with common solutions. First of all, solutions that are not based on HMMs will be shown, with their strengths and weaknesses. These will be contrasted with solution based on HMMs, which in all cases yield alternative methods which oftentimes perform better in some respect. For completeness, the reader should get a quick introduction to the vast theoretical background for HMMs, which includes a quick look at Markov Chains, the Hidden Markov models and different types of them. Furthermore, the most important algorithms for working with HMMs in practice are presented. For the experienced reader, the section on the theoretical background may be skipped. Finally, some practical examples in the open-source programming language R will be developed. 
 
 \section{Theoretical Background}
 
@@ -228,7 +280,7 @@ All the assumptions made in the simple model restricts the usefulness of the HMM
 Despite the fact that the strong assumptions of the standard HMM restrict the flexibility of the model, one can only imagine how the assumptions can be tweaked to create a new type of HMM. Some examples of how changes in the assumptions can mitigate some om the problems of the standard HMM are shown next.  
 
 \subsubsection{Profile-HMM}\label{Section:Profile-HMM}
-\textit{Profile-HMM}s (pro-HMMs) have specific architectures, which make them suitable for modeling sequence profiles \cite{Yoon2009}. Because of this, in the context of bioinformatics, the topology of pro-HMMs are best explained with multiple sequence alignment in mind. Two simple ways to think of a pro-HMM is as an abstract description of a protein family or a statistical summary of multiple sequence alignment \cite{Christianini2006}. A pro-HMM is constructed to not contain any cycles. Moreover, a pro-HMM consists of three different types of hidden states: match states ($M_k$), insert states ($I_k$) and delete states ($D_k$). These are used to describe symbol frequencies, insertions and deletions, respectively, at each specific position in a sequence. A great example on how to build a pro-HMM, which helps to clarify the ideas, can be found in \cite{Yoon2009}. \textcolor{red}{Can I just steel this example?} The illustration from the example is shown in \ref{fig:Yoon2009ProfileHMMExample}.
+\textit{Profile-HMM}s (pro-HMMs) have specific architectures, which make them suitable for modeling sequence profiles \cite{Yoon2009}. Because of this, in the context of bioinformatics, the topology of pro-HMMs are best explained with multiple sequence alignment in mind. Two simple ways to think of a pro-HMM is as an abstract description of a protein family or a statistical summary of multiple sequence alignment \cite{Christianini2006}. A pro-HMM is constructed to not contain any cycles. Moreover, a pro-HMM consists of three different types of hidden states: match states ($M_k$), insert states ($I_k$) and delete states ($D_k$). These are used to describe symbol frequencies, insertions and deletions, respectively, at each specific position in a sequence. A great example on how to build a pro-HMM, which helps to clarify the ideas, can be found in \cite{Yoon2009}. \textcolor{red}{Can I just steel this example? Yes, that is fine, not everything has to be original!} The illustration from the example is shown in \ref{fig:Yoon2009ProfileHMMExample}.
 
 \begin{figure}
     \centering
@@ -242,7 +294,7 @@ The example shows how a pro-HMM can be built from a multiple sequence alignment.
 Note that the pro-HMM parameters can be set in two different ways \cite{Eddy1998}; The first option is to set the parameters from a pre-aligned set of sequences, simply by counting state transitions and emissions, before converting the counts to probabilities. This is how the parameters in the previous example would be set. The second option is to use a set of sequences that is not aligned before training the pro-HMM. This problem is thus analogous to running a multiple sequence alignment before building the model. In this case, algorithms mentioned in section \ref{Section:TrainingProblem} are used. Since these algorithms are only local optimizers it is always advisable to build HMMs on pre-aligned data when this is possible \cite{Eddy1998}. 
 
 \subsubsection{Pair-HMM}
-In the context of bioinformatics, a \textit{pair-HMM} (p-HMM) is especially useful for finding sequence alignments and evaluating the significance of the alignments \cite{Yoon2009}. To contrast the standard HMM, a p-HMM generates an aligned pair of sequences, instead of only one sequence. An example is shown in \cite{Yoon2009} \textcolor{red}{Just steel this example as well!?} The illustration from the example is shown in \ref{fig:Yoon2009PairHMMExample}. The example presents a very simple p-HMM, with hidden states $I_x$, $I_y$ and $A$. This hidden MC produces the two observed sequences denoted by $\mathbf{x}$ and $\mathbf{z}$, where $I_x$ emits an unaligned symbol in sequence $\mathbf{x}$ and $I_z$ emits an unaligned symbol in $\mathbf{z}$. Additionally, state $A$ generates an aligned pair of two symbols, i.e. it inserts two identical symbols, each inserted into each of the observed sequences.  
+In the context of bioinformatics, a \textit{pair-HMM} (p-HMM) is especially useful for finding sequence alignments and evaluating the significance of the alignments \cite{Yoon2009}. To contrast the standard HMM, a p-HMM generates an aligned pair of sequences, instead of only one sequence. An example is shown in \cite{Yoon2009} \textcolor{red}{Just steel this example as well!? Yes, that's fine} The illustration from the example is shown in \ref{fig:Yoon2009PairHMMExample}. The example presents a very simple p-HMM, with hidden states $I_x$, $I_y$ and $A$. This hidden MC produces the two observed sequences denoted by $\mathbf{x}$ and $\mathbf{z}$, where $I_x$ emits an unaligned symbol in sequence $\mathbf{x}$ and $I_z$ emits an unaligned symbol in $\mathbf{z}$. Additionally, state $A$ generates an aligned pair of two symbols, i.e. it inserts two identical symbols, each inserted into each of the observed sequences.  
 
 \begin{figure}
     \centering
@@ -269,7 +321,7 @@ where $y_j$ is the emitted symbol at a context-sensitive state $x_j$, $y_k$ is t
 \end{equation*}
 Thus, using pairs of states ($\phi_i, \gamma_i$) allow modeling of pairwise symbol correlation by specifying the emission probabilities that appear in equation \eqref{eq:cs-HMMsJointProb}. Notice that these two states always exist in pairs, since $\phi_i$ are needed to describe the emission probabilities at $\gamma_i$. Moreover, the model is built such that it is never possible to transition to a context-sensitive state before transitioning to the corresponding pairwise-emission state \cite{Yoon2009}. 
 
-A simple example of a cs-HMM, which is a modified version of an example appearing in \cite{Yoon2009}, is given in figure \ref{fig:Yoon2009ContextSensitiveHMMExample}. The model has three different states: \textcolor{red}{unconsistent notation!} $S_1$ is the only single-emission state, $P_1$ is the only pairwise-emission state and $C_1$ is the only context-sensitive state. The MC first transitions to $P_1$ and emits one or more symbols which are stored in a queue. When the MC eventually transitions to $C_1$, a symbol is retrieved from the queue and the emission probabilities in $C_1$ are adjusted in such a way that the same symbol is emitted. Moreover, in this model, the transition probabilities are adjusted such that the MC transitions only to $C_1$ as long as the queue is not empty. When the queue is empty, the MC transitions to the end state and the simulation is over. Thus, this simple example can be used to create repeating sequences of two different formats. Firstly, the sequence 
+A simple example of a cs-HMM, which is a modified version of an example appearing in \cite{Yoon2009}, is given in figure \ref{fig:Yoon2009ContextSensitiveHMMExample}. The model has three different states: \textcolor{red}{inconsistent notation!} $S_1$ is the only single-emission state, $P_1$ is the only pairwise-emission state and $C_1$ is the only context-sensitive state. The MC first transitions to $P_1$ and emits one or more symbols which are stored in a queue. When the MC eventually transitions to $C_1$, a symbol is retrieved from the queue and the emission probabilities in $C_1$ are adjusted in such a way that the same symbol is emitted. Moreover, in this model, the transition probabilities are adjusted such that the MC transitions only to $C_1$ as long as the queue is not empty. When the queue is empty, the MC transitions to the end state and the simulation is over. Thus, this simple example can be used to create repeating sequences of two different formats. Firstly, the sequence 
 
 \begin{equation*}
     \mathbf{y} = (y_1, y_2, \ldots, y_{(L+1)/2}, y_1, y_2, \ldots, y_{(L+1)/2})^T, 
@@ -407,16 +459,30 @@ As explained when talking about context-censitive HMMs (csHMMs), profile-csHMMs 
 
 See below how on how to add code to latex (with knitr). Pretty cool!
 
-<<>>=
-library(MASS)
-data(crabs)
-summary(crabs[,4:7])
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(MASS)}
+\hlkwd{data}\hlstd{(crabs)}
+\hlkwd{summary}\hlstd{(crabs[,}\hlnum{4}\hlopt{:}\hlnum{7}\hlstd{])}
+\end{alltt}
+\begin{verbatim}
+##        FL              RW              CL              CW       
+##  Min.   : 7.20   Min.   : 6.50   Min.   :14.70   Min.   :17.10  
+##  1st Qu.:12.90   1st Qu.:11.00   1st Qu.:27.27   1st Qu.:31.50  
+##  Median :15.55   Median :12.80   Median :32.10   Median :36.80  
+##  Mean   :15.58   Mean   :12.74   Mean   :32.11   Mean   :36.41  
+##  3rd Qu.:18.05   3rd Qu.:14.30   3rd Qu.:37.23   3rd Qu.:42.00  
+##  Max.   :23.10   Max.   :20.20   Max.   :47.60   Max.   :54.60
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 \begin{center}
-<<echo = FALSE>>=
-boxplot(FL ~ sp, data=crabs)
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-2-1} 
+\end{knitrout}
 \end{center}
 
 
