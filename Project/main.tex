@@ -391,23 +391,26 @@ Probably the most important characteristic of a protein is its function, which i
 \textcolor{red}{How is this solved without HMMs? Look at MSA! Or does there exist other methods as well? Google quickly!}
 
 \subsection{Protein Sequence Classification}\label{Section:ProtSeqClass}
+Hva mener jeg egentlig med dette? Classification in function, structure or other characteristics?
 
 \textcolor{red}{How is this solved without HMMs?}
 
 Profile HMMs (analagously to multiple sequence alignment). 
 
+Another application of MSA.
 
 \subsection{Protein Structure Prediction}\label{Section:ProtStructurePred}
+Another important characteristic of a protein is its structure. The structure of a protein provides "a key to understanding its biological function" \cite{Isaev2006}. Generally, the structure of a protein comes in four different levels; primary, secondary, tertiary and quaternary \textcolor{red}{Se kladdebok i bio (øving til midterm), sjekk at det er de samme}. Without going into closer details about what the different levels mean, each of them describe different characteristics of the protein's structure, where the primary structure is the aminoacid sequence itself. The main goal of the structure prediction is to predict the secondary, tertairy and quaternary levels from the primary level of a specific protein. This is interesting because the experimental approaches used to discover all the structural levels of a protein are expensive, difficult and time-consuming. Because of these difficulties, the ideal is to use computational and statistical models to predict unknown structures. However, note that prediction of all the levels from the primary level can be very optimistic. In practice, one can only hope to predict the secondary structure, and sometimes the tertiary structure, as noted by Isaev \cite{Isaev2006}.
 
-\textcolor{red}{How is this solved without HMMs?}
+\textcolor{red}{How is this solved without HMMs? I think I have written enough about this above, but a quick google search could be smart still.}
 
-Is connected to homology detection. More in \cite{Choo2004}.
+One set of widely used models for predicting the secondary structure of a protein are pro-HMMs. This problem can, again, be seen as an application of MSA. When searching for a particular structural feature in a protein with unknown structure, one constructs a pro-HMM from a set of proteins with this feature. Then, aligning the query sequence to the pro-HMM can decide whether or not the sequence in question has the structural feature. In practice, one would query a database of pro-HMMs constructed based on different structural features, in order to (hopefully) uncover one of the features in the query protein.  
 
-Profile HMMs can be used to "model sequences of protein secondary structure symbols: helix (H), strand (E) and coil (C)" \cite{Yoon2009}. This model can be used to recognize the three-dimensional fold of new protein sequences based on their secondary protein structure predictions. 
-
-Also page 79 in Introduction to Mathematical Methods in Bioinformatics. 
+For prediction of the tertiary structure of a protein, one possible methodology is described by Yoon \cite{Yoon2009}. He notes that pro-HMMs can be used to "model sequences of protein secondary structure symbols: helix (H), strand (E) and coil (C)" \cite{Yoon2009}. Such models can be used to recognize the three-dimensional fold of new protein sequences based on their secondary protein structure predictions. Thus, this methodology assumes the secondary structure of the protein as known, either from experimental approaches or prediction. 
 
 Despite the vast improvements the HMMs have yielded, Eddy notes that "Profile HMMs and HMM-based gene finders have probably been the most successful applications of HMMs in computational biology. On the other hand, protein secondary structure prediction is an area in which the state of the art is neural net methods that outperform HMM methods by using extensive local correlation information that is not necessarily easy to model in an HMM" \cite{Eddy1998}. This shows that the HMMs that are used up until now are not the end all be all for statistical methods in bioinformatics, and that today's most successful method may be surpassed in the future. 
+
+More details about this problem, which is also known as the \textit{protein folding problem}, can be found in Isaev's \textit{Introduction to Mathematical Methods in Bioinformatics} \cite{Isaev2006}. A more technical note can be found in \cite{Choo2004}.
 
 \subsection{Segmentation}
 
@@ -444,12 +447,10 @@ As explained when talking about context-censitive HMMs (csHMMs), profile-csHMMs 
 
 Pair Hidden Markov models on tree structures (PHHMTS) can be used for aligning trees. Since most RNA secondary structures can be represented as trees, this provides a useful framework for aligning RNA sequences. 
 
-\subsection{Base-calling}
-\cite{Yoon2009}
-\subsection{Modeling DNA Sequencing Errors}
-\cite{Yoon2009}
-\subsection{ncRNA Identification}
-\cite{Yoon2009}
+\subsection{Other Applications}
+Some more applications of HMMs, all described by Yoon, are \textit{base-calling}, \textit{modeling DNA sequencing errors} and \textit{mcRNA indentification} \cite{Yoon2009}. These are all interesting problems, but will not be described here. 
+
+Either way, based on the short list of applications that have been described, it has hopefully become clear to the reader that HMMs are very widely used in Bioinformatics. 
 
 \section{Examples in R}
 
