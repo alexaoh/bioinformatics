@@ -60,9 +60,12 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{comment}
+\usepackage{tikz}
+\usetikzlibrary{calc, arrows, positioning, arrows.meta, matrix}
+\usepackage{xfrac}
 
 \title{Hidden Markov Models in Bioinformatics}
-\author{Alexander J Ohrt - UPC BarcelonaTech}
+\author{Alexander J Ohrt - UPC}
 \date{\today}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
@@ -454,35 +457,108 @@ Either way, based on the short list of applications that have been described, it
 
 \section{Examples in R}
 
-See below how on how to add code to latex (with knitr). Pretty cool!
+\subsection{Toy Example}
 
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{library}\hlstd{(MASS)}
-\hlkwd{data}\hlstd{(crabs)}
-\hlkwd{summary}\hlstd{(crabs[,}\hlnum{4}\hlopt{:}\hlnum{7}\hlstd{])}
-\end{alltt}
-\begin{verbatim}
-##        FL              RW              CL              CW       
-##  Min.   : 7.20   Min.   : 6.50   Min.   :14.70   Min.   :17.10  
-##  1st Qu.:12.90   1st Qu.:11.00   1st Qu.:27.27   1st Qu.:31.50  
-##  Median :15.55   Median :12.80   Median :32.10   Median :36.80  
-##  Mean   :15.58   Mean   :12.74   Mean   :32.11   Mean   :36.41  
-##  3rd Qu.:18.05   3rd Qu.:14.30   3rd Qu.:37.23   3rd Qu.:42.00  
-##  Max.   :23.10   Max.   :20.20   Max.   :47.60   Max.   :54.60
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+Simple HMMs can relatively easily be programmed manually. Imagine that you want to build a simple HMM for the cleavage of a DNA sequence between areas rich in CG or AT. The HMM would take the form as depicted in figure \ref{fig:toy_hmm}. The hidden MC has two states ($AT$ and $CG$), where $AT$ represents an $AT$ rich state and CG represents a CG rich state. In mathematical terms, we would write that $\mathcal{H} = \{AT, CG\}$. Moreover, since we are working with sequences of DNA, $\mathcal{S} = \{A,C,G,T\}$. The transition probabilities and the emission probabilities are shown in the figure. Note that the initial state probabilities are omitted from the figure, but they are set in the simulated model below. Based on these probabilities, the matrices are
 
+\begin{equation*}
+  \mathcal{T} = \begin{bmatrix}
+      \mathcal{T}_{AT, AT} & \mathcal{T}_{AT, CG} \\
+      \mathcal{T}_{CG, AT} & \mathcal{T}_{CG, CG}  \\
+  \end{bmatrix} = \mathcal{T} = \begin{bmatrix}
+      0.8 & 0.2 \\
+      0.2 & 0.8  \\
+  \end{bmatrix},
+\end{equation*}
+and 
+\begin{equation*}
+  \mathcal{E} = \begin{bmatrix}
+      \mathcal{E}_{AT, A} & \mathcal{E}_{AT, C} & \mathcal{E}_{AT, G} & \mathcal{E}_{AT, T}\\
+      \mathcal{E}_{CG, A} & \mathcal{E}_{CG, C} & \mathcal{E}_{CG, G} & \mathcal{E}_{CG, T}\\
+  \end{bmatrix} = \begin{bmatrix}
+     0.4 & 0.1 & 0.1 & 0.4 \\
+      0.1 & 0.4 & 0.4 & 0.1 \\
+  \end{bmatrix}.
+\end{equation*}
+The code block below shows one simple example of how this example HMM can be simulated. The function takes four inputs; the transition matrix, the emission matrix, the length of sequence that one wants to simulate and the initial state probabilities. 
+
+INSERT CODE BLOCK HERE!
+
+For example, the code block below shows how a HMM of length $n = 1000$, according to the specifications listed above, can be simulated, using the function `generate.sequences`.
+
+INSERT CODE BLOCK HERE!
+
+
+\tikzstyle{startend}=[shape=circle,draw=black, very thick, minimum size=0.5cm]
+\tikzstyle{state}=[shape=circle,draw=black, very thick, minimum size=1cm]
+\tikzstyle{observation}=[shape=rectangle,draw=orange!50,fill=orange!20]
+\tikzstyle{lightedge}=[<-,dotted]
+\tikzstyle{mainstate}=[state,thick]
+\tikzstyle{mainedge}=[<-,thick]
+
+\begin{figure}[htbp]
 \begin{center}
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-2-1} 
-\end{knitrout}
-\end{center}
+\begin{tikzpicture}[every left delimiter/.style={xshift=1ex}]
+    
+    % states
+    \node[state] (s1) at (3.33,0) {$AT$};
+    \node[state] (s3) at (6.66,0) {$CG$};
 
-\subsection{pro-HMMs in R: `aphid` library}
+    %loopback prob labels
+    \node[below = 0.25cm of s1, inner sep=0pt, outer sep = 0pt, minimum size = 25pt]
+            (s1loopback) {0.8};
+    \node[below = 0.25cm of s3, inner sep=0pt, outer sep = 0pt, minimum size = 25pt]
+            (s3loopback) {0.8};
+
+    %emission probabilities
+    \node[align=center, above left = 1cm and -1cm of s1, blue] (emit1) {
+        \(
+        \begin{cases}
+            A = 0.4 \\
+            C = 0.1 \\
+            G = 0.1 \\
+            T = 0.4
+        \end{cases}
+        \)
+    };
+    \node[align=center, above right = 1cm and -1cm of s3, blue] (emit3) {
+        \(
+        \begin{cases}
+            A = 0.1 \\
+            C = 0.4 \\
+            G = 0.4 \\
+            T = 0.1
+        \end{cases}
+        \)
+    };
+            
+    %all edges
+    \path[]
+        
+        (s1) edge [-{>[scale=1]}, out=30, in=150, thick, midway, above] node {0.2} (s3)
+        
+        (s3) edge [-{>[scale=1]}, out = 210, in = 330, thick, midway, above] node {0.2} (s1)
+
+        %  Loop back edges
+        (s1) edge [thick, out=300, in=0] (s1loopback)
+        (s1loopback) edge [thick, -{>[scale=1]}, out=180, in=240] (s1)
+        (s3) edge [thick, out=300, in=0] (s3loopback)
+        (s3loopback) edge [thick, -{>[scale=1]}, out=180, in=240] (s3)
+        
+        
+        %   Connect emission probs
+        (emit1) edge [thick, blue, out=225, in=135] (s1)
+        (emit3) edge [thick, blue, out=315, in=45] (s3);
+
+\end{tikzpicture}
+\end{center}
+\caption{HMM topology for example on modelling the cleavage of a DNA sequence between areas rich in CG or AT. Note that the initial state probabilites are omitted from this figure. }
+\label{fig:toy_hmm}
+\end{figure}
+
+Chapter 10.6 in \cite{Krijnen2009} is a good reference for some more simple manual implementations of MCs and HMMs in R. Although it is always recommended to try to implement methods manually at first, because it helps to understand the theory to a greater degree, the use of libraries always gives more flexibility. Moreover, libraries are very often optimized, such that the performance and reliability of the code is guaranteed. We will be diving deeper into one such library for HMMs in R in the following. 
+
+\subsection{The `aphid` library}
 
 https://cran.r-project.org/web/packages/aphid/vignettes/aphid-vignette.html
 
@@ -538,6 +614,9 @@ Sean R. Eddy (1998) \emph{Profile hidden Markov models}, Bioinformatics Review, 
 
 \bibitem{Yoon2006}
 Byung-Jun Yoon, P. P. Vaidyanathan (2006) \emph{Context-Sensitive Hidden Markov Models for Modeling Long-Range Dependencies in Symbol Sequences}, IEEE TRANSACTIONS ON SIGNAL PROCESSING, Volume 54, Number 11, 4169-4184.
+
+\bibitem{Krijnen2009}
+Wim P. Krijnen (2009) \emph{Applied Statistics for Bioinformatics using R}, GNU Free Document Licence
 
 \end{thebibliography}
 
