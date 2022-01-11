@@ -1,0 +1,104 @@
+---
+title: "Code for Project"
+subtitle: "Bioinformatics"
+author: "Alexander J Ohrt"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 3
+    theme: readable
+    highlight: textmate
+    number_sections: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Code for HMMs - going into report
+
+Simple HMMs can relatively easily be programmed manually. Imagine that you want to build a simple HMM for the cleavage of a DNA sequence between areas rich in CG or AT. The HMM would take the form as depicted in figure \ref{fig:toy_hmm}. The hidden MC has two states ($AT$ and $CG$), where $AT$ represents an $AT$ rich state and CG represents a CG rich state. In mathematical terms, we would write that $\mathcal{H} = \{AT, CG\}$. Moreover, since we are working with sequences of DNA, $\mathcal{S} = \{A,C,G,T\}$. The transition probabilities and the emission probabilities are shown in the figure. Note that the initial state probabilities are omitted from the figure, but they are set in the simulated model below. Based on these probabilities, the matrices are
+
+\begin{equation*}
+  \mathcal{T} = \begin{bmatrix}
+      \mathcal{T}_{AT, AT} & \mathcal{T}_{AT, CG} \\
+      \mathcal{T}_{CG, AT} & \mathcal{T}_{CG, CG}  \\
+  \end{bmatrix} = \mathcal{T} = \begin{bmatrix}
+      0.8 & 0.2 \\
+      0.2 & 0.8  \\
+  \end{bmatrix},
+\end{equation*}
+
+and 
+
+\begin{equation*}
+  \mathcal{E} = \begin{bmatrix}
+      \mathcal{E}_{AT, A} & \mathcal{E}_{AT, C} & \mathcal{E}_{AT, G} & \mathcal{E}_{AT, T}\\
+      \mathcal{E}_{CG, A} & \mathcal{E}_{CG, C} & \mathcal{E}_{CG, G} & \mathcal{E}_{CG, T}\\
+  \end{bmatrix} = \begin{bmatrix}
+     0.4 & 0.1 & 0.1 & 0.4 \\
+      0.1 & 0.4 & 0.4 & 0.1 \\
+  \end{bmatrix}.
+\end{equation*}
+
+The code block below shows one simple example of how this example HMM can be simulated. The function takes four inputs; the transition matrix, the emission matrix, the length of sequence that one wants to simulate and the initial state probabilities. 
+
+```{r}
+generate.sequences <- function(Tr, Em, n, p){
+    # Tr = transition matrix.
+    # Em = emission matrix.
+    # n = length of generated sequence.
+    # p = initial state probabilities. 
+    
+  symbols <- c("A", "C", "G", "T")
+  states <- c(1, 2) # 1 = AT and 2 = CG
+  
+  # x are hidden states and y are observed symbols. 
+  x <- y <- rep(NA, length.out = n)
+  
+  x[1] <- sample(states, size = 1, prob = p)
+  y[1] <- sample(symbols,size = 1,replace=T,prob = Em[x[1],])
+  
+  for(i in 1:(n-1)){
+    x[i+1] <- sample(states, size = 1, prob = Tr[,x[i]])
+    y[i+1] <- sample(symbols, size = 1, prob = Em[x[i], ])
+  }
+  return(cbind("Hidden" = x, "Obs" = y))
+}
+```
+
+For example, the code block below shows how a HMM of length $n = 1000$, according to the specifications listed above, can be simulated, using the function `generate.sequences`.
+
+```{r}
+# Transition matrix (A).
+A <- matrix(c(0.8, 0.2, 0.2, 0.8), nrow = 2)
+rownames(A) <- c("AT", "CG")
+colnames(A) <- c("AT", "CG")
+A
+
+# Emission matrix (E).
+E <- matrix(c(0.4, 0.1, 0.1, 0.4, 0.1, 0.4, 0.4, 0.1), nrow = 2)
+rownames(E) <- c("AT", "CG")
+colnames(E) <- c("A", "C", "G", "T")
+E
+
+# Initial probabilities.
+p <- c(0.2,0.8)
+
+# Length of the sequence.
+n <- 1000
+
+# MC.
+df <- generate.sequences(A, E, n, p)
+
+# The first 5 steps in the chains is printed below. 
+df[1:5, ]
+```
+
+Chapter 10.6 in Krijnen (REFER in report) is a good reference for some more simple implementations of MCs and HMMs in R. Although it is always recommended to try to implement methods manually at first, because it helps to understand the theory to a greater degree, the use of libraries always gives more flexibility. Moreover, libraries are very often optimized by the authors, such that the performance and reliability of the code is guaranteed. We will be diving deeper into one such library for HMMs in R in the following. 
+
+## The `aphid` package
