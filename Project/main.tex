@@ -488,7 +488,6 @@ For example, the code block below shows how a HMM of length $n = 1000$, accordin
 
 INSERT CODE BLOCK HERE!
 
-
 \tikzstyle{startend}=[shape=circle,draw=black, very thick, minimum size=0.5cm]
 \tikzstyle{state}=[shape=circle,draw=black, very thick, minimum size=1cm]
 \tikzstyle{observation}=[shape=rectangle,draw=orange!50,fill=orange!20]
@@ -558,9 +557,36 @@ INSERT CODE BLOCK HERE!
 
 Chapter 10.6 in \cite{Krijnen2009} is a good reference for some more simple manual implementations of MCs and HMMs in R. Although it is always recommended to try to implement methods manually at first, because it helps to understand the theory to a greater degree, the use of libraries always gives more flexibility. Moreover, libraries are very often optimized, such that the performance and reliability of the code is guaranteed. We will be diving deeper into one such library for HMMs in R in the following. 
 
-\subsection{The `aphid` library}
+\subsection{The \textit{aphid} Library}
 
-The `aphid` library in R was "designed for the development and application of hidden Markov models and profile HMMs for biological sequence analysis", as the authors state in the package description in the \textit{Comprehensive R Archive Network} \cite{CRAN}. There exists a great vignette for the package,written by the author of `aphid` himself, which we will be following to some degree here \cite{Wilkinson2017}. It contains several examples of how the package can be used, as well as descriptions of exactly what it contains. As is seen below, it even has plotting capabilites, i.e. it can plot a diagram, similar to the one seen in figure \ref{fig:toy_hmm}, representing the HMM in a particular case. 
+The \textit{aphid} library in R was "designed for the development and application of hidden Markov models and profile HMMs for biological sequence analysis", as the author states in the package description in the \textit{Comprehensive R Archive Network} (CRAN) \cite{CRAN}. There exists a great vignette for the package, written by the author of \textit{aphid}  himself, which we will be following to some degree here \cite{Wilkinson2017}. It contains several examples of how the package can be used, as well as descriptions of exactly what it contains. As will be shown, the library even has plotting capabilites, i.e. it can plot a diagram, similar to the one seen in figure \ref{fig:toy_hmm}, representing the HMM in a particular case. For more information, or if anything is unclear, consult this vignette and the documentation of the library. 
+
+\subsubsection{Fair Bet Casino}
+A typical first example of the use of a HMM is the so-called "Fair Bet Casino" \cite{Jones2004}. In this casino, a dealer flips a coin and a player bets on the outcome. The dealer uses either a fair coin, where flipping either heads or tails is equally likely, or a biased coin, where one of the sides is much more likely. For the sake of this demonstration, heads is given the probability $\frac34$. Moreover, the dealer does not like to switch coins very often. In this case, the switch only happens with probability $\frac17$. Moreover, we assume that the dealer starts with the fair coin in 99\% of the games he deals. Given a sequence of coin tosses, the player wants to figure out which of the coins the dealer has used, since this can help the player to win more money. Hopefully it is clear to you that this problem can be modelled as a standard HMM, as introduced in section \ref{Section:StandardHMM}. This can be done in a very simple manner, via the \textit{aphid}  library, as shown below.   
+
+INSERT CODE BLOCK HERE!
+
+Interestingly, this simple version of the "Fair Bet Casino" can be used to find so-called "CG-islands", which are genomic regions where CG appears frequently compared to other areas in the rest of the genome. The reader is referred to chapter 11 in Jones and Pevzner's \textit{An Introduction to Bioinformatics Algorithms} for an interesting read concerning this example \cite{Jones2004}.
+
+In order to highlight some more of the capabilities of the library, another example of such an imaginary casino will be used, based on chapter 3.2 in Durbin et al \cite{Durbin1998}. This casino has two dice, one fair and one weighted. The fair dice emits each of the six sides with equal probabilites, while the probability of rolling a "6" is $\frac{1}{2}$ for the loaded dice, while the probability of rolling any of the other sides is $\frac{1}{10}$. The dealer switches from the fair dice to the loaded dice with probability $\frac{5}{100}$ and from the loaded dice to the fair dice with probability $\frac{1}{10}$. This situation is modelled with the library in the following block of code. 
+
+INSERT CODE BLOCK HERE!
+
+Let us solve the decoding problem for a given observed sequence of dice residuals. The library includes a few data sets, where one of the data sets is called \textit{casino}, which is data taken from this exact example. The data contains the result of 300 rolls of the dice that switched from fair to loaded, i.e. a sequence from the data set contains the hidden MC and the observed sequence of symbols. In the code block below, the hidden MC state sequence is first extracted from the data set. Then the Viterbi algorithm is used to solve the decoding problem, given (only) the observed sequence of symbols from the data set. 
+
+INSERT CODE BLOCK HERE!
+
+The training problem can also be solved using the library. The function used below uses the method described in chapter 3.3 in Durbin et al, which assumes that the state sequences in all the training data is known \cite{Durbin1998}. It derives a standard HMM from the sequence in the data set, which is plotted. 
+
+INSERT CODE BLOCK HERE!
+
+Despite the fact that the function is only fed with one sequence (which is all our data set contains), the parameters of the HMM are estimated relatively closely to the correct model. Usually, we will feed a training algorithm with many more sequences, such that the correct model is more closely mirrored. The library contains more methods for solving the training problem, for both standard HMMs and pro-HMMs, but this is the most simple example. The vignette contains examples on the use of these as well \cite{Wilkinson2017}.
+
+Lastly, how a pro-HMM, as introducted in section \ref{Section:Profile-HMM}, can be derived from a sequence is shown. The library contains another data set called \textit{globins}. This contains small globin alignment data, which is taken from figure 5.3 in Durbin et al \cite{Durbin1998}. This alignment data can be used to build a pro-HMM, as shown below. 
+
+INSERT CODE BLOCK HERE!
+
+\newpage
 
 \begin{thebibliography}{20}
 \bibitem{Eddy04}
@@ -618,6 +644,9 @@ url: \verb$https://CRAN.R-project.org/package=aphid$
 \bibitem{Wilkinson2017}
 Shaun Wilkinson (2017), \emph{The ‘aphid’ package for analysis with profile hidden Markov models}, downloaded on 11.01.22, 
 url: \verb$https://cran.r-project.org/web/packages/aphid/vignettes/aphid-vignette.html$
+
+\bibitem{Jones2004}
+Neil C. Jones, Pavel A. Pevzner (2004) \emph{An Introduction to Bioinformatics Algorithms}, MIT Press. 
 
 \end{thebibliography}
 

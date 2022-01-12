@@ -17,6 +17,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(kableExtra)
 ```
 
 ## Code for HMMs - going into report
@@ -103,7 +104,37 @@ Chapter 10.6 in Krijnen (REFER in report) is a good reference for some more simp
 
 ## The `aphid` package
 
-The fair-bet-casino example is shown below, directly copied from the docs of the library `aphid`. 
+The fair-bet-casino example is shown below, original example with coin toss. 
+
+```{r}
+library("aphid")
+states <- c("Begin", "Fair", "Biased")
+symbols <- c("H", "T")
+
+# Define transition probability matrix A.
+A <- matrix(c(0, 0, 0, 0.99, 6/7, 1/7, 0.1, 1/7, 6/7), nrow = 3)
+dimnames(A) <- list(from = states, to = states)
+A
+
+# Define emission probability matrix E.
+E <- matrix(c(rep(1/2, 2), 3/4, 1/4), nrow = 2, byrow = TRUE)
+dimnames(E) <- list(states = states[-1], symbols = symbols)
+E
+
+# Create the HMM object.
+x <- structure(list(A = A, E = E), class = "HMM")
+
+# Plot the model.
+plot(x, textexp = 1.5)
+
+# Optionally add the transition probabilities as text.
+text(x = 0.02, y = 0.5, labels = "6/7")
+text(x = 0.53, y = 0.5, labels = "6/7")
+text(x = 0.5, y = 0.3, labels = "1/7")
+text(x = 0.5, y = 0.7, labels = "1/7")
+```
+
+Imaginary casino from package and Durbin et al (1998). 
 
 ```{r}
 library("aphid")
@@ -124,5 +155,52 @@ text(x = 0.02, y = 0.5, labels = "0.95")
 text(x = 0.51, y = 0.5, labels = "0.90")
 text(x = 0.5, y = 0.9, labels = "0.05")
 text(x = 0.5, y = 0.1, labels = "0.10")
+```
+
+The decoding problem on the dishonest casino.
+
+```{r}
+# Load the data set.
+data(casino) 
+
+# The actual path is stored in the names attribute of the sequence.
+actual <- c("F", "L")[match(names(casino), c("Fair", "Loaded"))]
+
+# Find the predicted path.
+vit1 <- Viterbi(x, casino)
+
+# vit1 contains several types of information. 
+names(vit1)
+
+# The predicted path from the Viterbi algorithm. 
+predicted <- c("F", "L")[vit1$path + 1]
+# Note the path element of the output Viterbi object is an integer vector.
+# The addition of 1 to the path converts from C/C++ to R's indexing style.
+
+# Comparing the predicted and the actual path. 
+knitr::kable(rbind(actual = actual, predicted = predicted))
+```
+
+Training problem with known state sequences. 
+
+```{r}
+y <- deriveHMM(list(casino), logspace = FALSE)
+plot(y, textexp = 1.5)
+
+### Optionally add the transition probabilities as text
+text(x = 0.02, y = 0.5, labels = round(y$A["Fair", "Fair"], 2))
+text(x = 0.51, y = 0.5, labels = round(y$A["Loaded", "Loaded"], 2))
+text(x = 0.5, y = 0.9, labels = round(y$A["Fair", "Loaded"], 2))
+text(x = 0.5, y = 0.1, labels = round(y$A["Loaded", "Fair"], 2))
+```
+
+### Profile HMM with **globins** data
+
+```{r}
+data(globins)
+globins
+
+globins.PHMM <- derivePHMM(globins, residues = "AMINO", pseudocounts = "Laplace")
+plot(globins.PHMM)
 ```
 
