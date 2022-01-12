@@ -16,3 +16,6 @@ Project/*
 !Project/starter.R
 !Project/compile.sh
 !Project/code.Rmd
+!Project/testing.Rnw
+!Project/testing.pdf
+!Project/testing.tex

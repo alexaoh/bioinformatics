@@ -93,7 +93,7 @@ p <- c(0.2,0.8)
 # Length of the sequence.
 n <- 1000
 
-# MC.
+# Generate the sequences. 
 df <- generate.sequences(A, E, n, p)
 
 # The first 5 steps in the chains is printed below. 
@@ -140,17 +140,24 @@ Imaginary casino from package and Durbin et al (1998).
 library("aphid")
 states <- c("Begin", "Fair", "Loaded")
 residues <- paste(1:6)
-### Define transition probability matrix A
+
+# Define transition probability matrix A.
 A <- matrix(c(0, 0, 0, 0.99, 0.95, 0.1, 0.01, 0.05, 0.9), nrow = 3)
 dimnames(A) <- list(from = states, to = states)
-### Define emission probability matrix E
+A
+
+# Define emission probability matrix E.
 E <- matrix(c(rep(1/6, 6), rep(1/10, 5), 1/2), nrow = 2, byrow = TRUE)
 dimnames(E) <- list(states = states[-1], residues = residues)
-### Create the HMM object
+E
+
+# Create the HMM object.
 x <- structure(list(A = A, E = E), class = "HMM")
-### Plot the model
+
+# Plot the model.
 plot(x, textexp = 1.5)
-### Optionally add the transition probabilities as text
+
+# Optionally add the transition probabilities as text.
 text(x = 0.02, y = 0.5, labels = "0.95")
 text(x = 0.51, y = 0.5, labels = "0.90")
 text(x = 0.5, y = 0.9, labels = "0.05")

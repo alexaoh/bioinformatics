@@ -1,53 +1,6 @@
-\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
-% maxwidth is the original width if it is less than linewidth
-% otherwise use linewidth (to make sure the graphics do not exceed the margin)
-\makeatletter
-\def\maxwidth{ %
-  \ifdim\Gin@nat@width>\linewidth
-    \linewidth
-  \else
-    \Gin@nat@width
-  \fi
-}
-\makeatother
-
-\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
-\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
-\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
-\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
-\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
-\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
-\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
-\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
-\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
-\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
-\let\hlipl\hlkwb
-
-\usepackage{framed}
-\makeatletter
-\newenvironment{kframe}{%
- \def\at@end@of@kframe{}%
- \ifinner\ifhmode%
-  \def\at@end@of@kframe{\end{minipage}}%
-  \begin{minipage}{\columnwidth}%
- \fi\fi%
- \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
- \colorbox{shadecolor}{##1}\hskip-\fboxsep
-     % There is no \\@totalrightmargin, so:
-     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
- \MakeFramed {\advance\hsize-\width
-   \@totalleftmargin\z@ \linewidth\hsize
-   \@setminipage}}%
- {\par\unskip\endMakeFramed%
- \at@end@of@kframe}
-\makeatother
-
-\definecolor{shadecolor}{rgb}{.97, .97, .97}
-\definecolor{messagecolor}{rgb}{0, 0, 0}
-\definecolor{warningcolor}{rgb}{1, 0, 1}
-\definecolor{errorcolor}{rgb}{1, 0, 0}
-\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
-
+\documentclass{article}
+\usepackage[]{graphicx}
+\usepackage[]{color}
 \usepackage{alltt}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
@@ -480,13 +433,6 @@ and
       0.1 & 0.4 & 0.4 & 0.1 \\
   \end{bmatrix}.
 \end{equation*}
-The code block below shows one simple example of how this example HMM can be simulated. The function takes four inputs; the transition matrix, the emission matrix, the length of sequence that one wants to simulate and the initial state probabilities. 
-
-INSERT CODE BLOCK HERE!
-
-For example, the code block below shows how a HMM of length $n = 1000$, according to the specifications listed above, can be simulated, using the function `generate.sequences`.
-
-INSERT CODE BLOCK HERE!
 
 \tikzstyle{startend}=[shape=circle,draw=black, very thick, minimum size=0.5cm]
 \tikzstyle{state}=[shape=circle,draw=black, very thick, minimum size=1cm]
@@ -496,64 +442,120 @@ INSERT CODE BLOCK HERE!
 \tikzstyle{mainedge}=[<-,thick]
 
 \begin{figure}[htbp]
-\begin{center}
-\begin{tikzpicture}[every left delimiter/.style={xshift=1ex}]
+    \begin{center}
+    \begin{tikzpicture}[every left delimiter/.style={xshift=1ex}]
+        
+        % states
+        \node[state] (s1) at (3.33,0) {$AT$};
+        \node[state] (s3) at (6.66,0) {$CG$};
     
-    % states
-    \node[state] (s1) at (3.33,0) {$AT$};
-    \node[state] (s3) at (6.66,0) {$CG$};
-
-    %loopback prob labels
-    \node[below = 0.25cm of s1, inner sep=0pt, outer sep = 0pt, minimum size = 25pt]
-            (s1loopback) {0.8};
-    \node[below = 0.25cm of s3, inner sep=0pt, outer sep = 0pt, minimum size = 25pt]
-            (s3loopback) {0.8};
-
-    %emission probabilities
-    \node[align=center, above left = 1cm and -1cm of s1, blue] (emit1) {
-        \(
-        \begin{cases}
-            A = 0.4 \\
-            C = 0.1 \\
-            G = 0.1 \\
-            T = 0.4
-        \end{cases}
-        \)
-    };
-    \node[align=center, above right = 1cm and -1cm of s3, blue] (emit3) {
-        \(
-        \begin{cases}
-            A = 0.1 \\
-            C = 0.4 \\
-            G = 0.4 \\
-            T = 0.1
-        \end{cases}
-        \)
-    };
+        %loopback prob labels
+        \node[below = 0.25cm of s1, inner sep=0pt, outer sep = 0pt, minimum size = 25pt]
+                (s1loopback) {0.8};
+        \node[below = 0.25cm of s3, inner sep=0pt, outer sep = 0pt, minimum size = 25pt]
+                (s3loopback) {0.8};
+    
+        %emission probabilities
+        \node[align=center, above left = 1cm and -1cm of s1, blue] (emit1) {
+            \(
+            \begin{cases}
+                A = 0.4 \\
+                C = 0.1 \\
+                G = 0.1 \\
+                T = 0.4
+            \end{cases}
+            \)
+        };
+        \node[align=center, above right = 1cm and -1cm of s3, blue] (emit3) {
+            \(
+            \begin{cases}
+                A = 0.1 \\
+                C = 0.4 \\
+                G = 0.4 \\
+                T = 0.1
+            \end{cases}
+            \)
+        };
+                
+        %all edges
+        \path[]
             
-    %all edges
-    \path[]
-        
-        (s1) edge [-{>[scale=1]}, out=30, in=150, thick, midway, above] node {0.2} (s3)
-        
-        (s3) edge [-{>[scale=1]}, out = 210, in = 330, thick, midway, above] node {0.2} (s1)
-
-        %  Loop back edges
-        (s1) edge [thick, out=300, in=0] (s1loopback)
-        (s1loopback) edge [thick, -{>[scale=1]}, out=180, in=240] (s1)
-        (s3) edge [thick, out=300, in=0] (s3loopback)
-        (s3loopback) edge [thick, -{>[scale=1]}, out=180, in=240] (s3)
-        
-        
-        %   Connect emission probs
-        (emit1) edge [thick, blue, out=225, in=135] (s1)
-        (emit3) edge [thick, blue, out=315, in=45] (s3);
-
-\end{tikzpicture}
-\end{center}
-\caption{HMM topology for example on modelling the cleavage of a DNA sequence between areas rich in CG or AT. Note that the initial state probabilites are omitted from this figure. }
-\label{fig:toy_hmm}
+            (s1) edge [-{>[scale=1]}, out=30, in=150, thick, midway, above] node {0.2} (s3)
+            
+            (s3) edge [-{>[scale=1]}, out = 210, in = 330, thick, midway, above] node {0.2} (s1)
+    
+            %  Loop back edges
+            (s1) edge [thick, out=300, in=0] (s1loopback)
+            (s1loopback) edge [thick, -{>[scale=1]}, out=180, in=240] (s1)
+            (s3) edge [thick, out=300, in=0] (s3loopback)
+            (s3loopback) edge [thick, -{>[scale=1]}, out=180, in=240] (s3)
+            
+            
+            %   Connect emission probs
+            (emit1) edge [thick, blue, out=225, in=135] (s1)
+            (emit3) edge [thick, blue, out=315, in=45] (s3);
+    
+    \end{tikzpicture}
+    \end{center}
+    \caption{HMM topology for example on modelling the cleavage of a DNA sequence between areas rich in CG or AT. Note that the initial state probabilites are omitted from this figure. }
+    \label{fig:toy_hmm}
 \end{figure}
+
+
+The code block below shows one simple example of how this example HMM can be simulated. The function takes four inputs; the transition matrix, the emission matrix, the length of sequence that one wants to simulate and the initial state probabilities. 
+
+<<>>=
+generate.sequences <- function(Tr, Em, n, p){
+    # Tr = transition matrix.
+    # Em = emission matrix.
+    # n = length of generated sequence.
+    # p = initial state probabilities. 
+    
+  symbols <- c("A", "C", "G", "T")
+  states <- c(1, 2) # 1 = AT and 2 = CG
+  
+  # x are hidden states and y are observed symbols. 
+  x <- y <- rep(NA, length.out = n)
+  
+  x[1] <- sample(states, size = 1, prob = p)
+  y[1] <- sample(symbols, size = 1,replace=T,prob = Em[x[1],])
+  
+  for(i in 1:(n-1)){
+    x[i+1] <- sample(states, size = 1, prob = Tr[,x[i]])
+    y[i+1] <- sample(symbols, size = 1, prob = Em[x[i], ])
+  }
+  return(cbind("Hidden" = x, "Obs" = y))
+}
+@
+
+For example, the code block below shows how a HMM of length $n = 1000$, according to the specifications listed above, can be simulated, using the function `generate.sequences`.
+
+<<>>=
+# Transition matrix (A).
+A <- matrix(c(0.8, 0.2, 0.2, 0.8), nrow = 2)
+rownames(A) <- c("AT", "CG")
+colnames(A) <- c("AT", "CG")
+A
+
+# Emission matrix (E).
+E <- matrix(c(0.4, 0.1, 0.1, 0.4, 0.1, 0.4, 0.4, 0.1), nrow = 2)
+rownames(E) <- c("AT", "CG")
+colnames(E) <- c("A", "C", "G", "T")
+E
+
+# Initial probabilities.
+p <- c(0.2,0.8)
+
+# Length of the sequence.
+n <- 1000
+
+# Generate the sequences. 
+df <- generate.sequences(A, E, n, p)
+
+# The first 5 steps in the chains is printed below. 
+df[1:5, ]
+@
+
 
 Chapter 10.6 in \cite{Krijnen2009} is a good reference for some more simple manual implementations of MCs and HMMs in R. Although it is always recommended to try to implement methods manually at first, because it helps to understand the theory to a greater degree, the use of libraries always gives more flexibility. Moreover, libraries are very often optimized, such that the performance and reliability of the code is guaranteed. We will be diving deeper into one such library for HMMs in R in the following. 
 
@@ -562,29 +564,123 @@ Chapter 10.6 in \cite{Krijnen2009} is a good reference for some more simple manu
 The \textit{aphid} library in R was "designed for the development and application of hidden Markov models and profile HMMs for biological sequence analysis", as the author states in the package description in the \textit{Comprehensive R Archive Network} (CRAN) \cite{CRAN}. There exists a great vignette for the package, written by the author of \textit{aphid}  himself, which we will be following to some degree here \cite{Wilkinson2017}. It contains several examples of how the package can be used, as well as descriptions of exactly what it contains. As will be shown, the library even has plotting capabilites, i.e. it can plot a diagram, similar to the one seen in figure \ref{fig:toy_hmm}, representing the HMM in a particular case. For more information, or if anything is unclear, consult this vignette and the documentation of the library. 
 
 \subsubsection{Fair Bet Casino}
-A typical first example of the use of a HMM is the so-called "Fair Bet Casino" \cite{Jones2004}. In this casino, a dealer flips a coin and a player bets on the outcome. The dealer uses either a fair coin, where flipping either heads or tails is equally likely, or a biased coin, where one of the sides is much more likely. For the sake of this demonstration, heads is given the probability $\frac34$. Moreover, the dealer does not like to switch coins very often. In this case, the switch only happens with probability $\frac17$. Moreover, we assume that the dealer starts with the fair coin in 99\% of the games he deals. Given a sequence of coin tosses, the player wants to figure out which of the coins the dealer has used, since this can help the player to win more money. Hopefully it is clear to you that this problem can be modelled as a standard HMM, as introduced in section \ref{Section:StandardHMM}. This can be done in a very simple manner, via the \textit{aphid}  library, as shown below.   
+A typical first example of the use of a HMM is the so-called "Fair Bet Casino" \cite{Jones2004}. In this casino, a dealer flips a coin and a player bets on the outcome. The dealer uses either a fair coin, where flipping either heads or tails is equally likely, or a biased coin, where one of the sides is much more likely. For the sake of this demonstration, heads is given the probability $\frac34$. Moreover, the dealer does not like to switch coins very often. In this case, the switch only happens with probability $\frac17$. Moreover, we assume that the dealer starts with the fair coin in 99\% of the games he deals. Given a sequence of coin tosses, the player wants to figure out which of the coins the dealer has used, since this can help the player to win more money. Hopefully it is clear to you that this problem can be modelled as a standard HMM, as introduced in section \ref{Section:StandardHMM}. This can be done in a very simple manner, via the \textit{aphid} library, as shown below.   
 
-INSERT CODE BLOCK HERE!
+\begin{center}
+<<fig.height = 3>>=
+library("aphid")
+states <- c("Begin", "Fair", "Biased")
+symbols <- c("H", "T")
+
+# Define transition probability matrix A.
+A <- matrix(c(0, 0, 0, 0.99, 6/7, 1/7, 0.1, 1/7, 6/7), nrow = 3)
+dimnames(A) <- list(from = states, to = states)
+A
+
+# Define emission probability matrix E.
+E <- matrix(c(rep(1/2, 2), 3/4, 1/4), nrow = 2, byrow = TRUE)
+dimnames(E) <- list(states = states[-1], symbols = symbols)
+E
+
+# Create the HMM object.
+x <- structure(list(A = A, E = E), class = "HMM")
+
+# Plot the model.
+plot(x, textexp = 1.5)
+
+# Optionally add the transition probabilities as text.
+text(x = 0.02, y = 0.5, labels = "6/7")
+text(x = 0.53, y = 0.5, labels = "6/7")
+text(x = 0.5, y = 0.3, labels = "1/7")
+text(x = 0.5, y = 0.7, labels = "1/7")
+@
+\end{center}
 
 Interestingly, this simple version of the "Fair Bet Casino" can be used to find so-called "CG-islands", which are genomic regions where CG appears frequently compared to other areas in the rest of the genome. The reader is referred to chapter 11 in Jones and Pevzner's \textit{An Introduction to Bioinformatics Algorithms} for an interesting read concerning this example \cite{Jones2004}.
 
 In order to highlight some more of the capabilities of the library, another example of such an imaginary casino will be used, based on chapter 3.2 in Durbin et al \cite{Durbin1998}. This casino has two dice, one fair and one weighted. The fair dice emits each of the six sides with equal probabilites, while the probability of rolling a "6" is $\frac{1}{2}$ for the loaded dice, while the probability of rolling any of the other sides is $\frac{1}{10}$. The dealer switches from the fair dice to the loaded dice with probability $\frac{5}{100}$ and from the loaded dice to the fair dice with probability $\frac{1}{10}$. This situation is modelled with the library in the following block of code. 
 
-INSERT CODE BLOCK HERE!
+\begin{center}
+<<fig.height = 4>>=
+states <- c("Begin", "Fair", "Loaded")
+residues <- paste(1:6)
+
+# Define transition probability matrix A.
+A <- matrix(c(0, 0, 0, 0.99, 0.95, 0.1, 0.01, 0.05, 0.9), nrow = 3)
+dimnames(A) <- list(from = states, to = states)
+A
+
+# Define emission probability matrix E.
+E <- matrix(c(rep(1/6, 6), rep(1/10, 5), 1/2), nrow = 2, byrow = TRUE)
+dimnames(E) <- list(states = states[-1], residues = residues)
+E
+
+# Create the HMM object.
+x <- structure(list(A = A, E = E), class = "HMM")
+
+# Plot the model.
+plot(x, textexp = 1.5)
+
+# Optionally add the transition probabilities as text.
+text(x = 0.02, y = 0.5, labels = "0.95")
+text(x = 0.51, y = 0.5, labels = "0.90")
+text(x = 0.5, y = 0.9, labels = "0.05")
+text(x = 0.5, y = 0.1, labels = "0.10")
+@
+\end{center}
 
 Let us solve the decoding problem for a given observed sequence of dice residuals. The library includes a few data sets, where one of the data sets is called \textit{casino}, which is data taken from this exact example. The data contains the result of 300 rolls of the dice that switched from fair to loaded, i.e. a sequence from the data set contains the hidden MC and the observed sequence of symbols. In the code block below, the hidden MC state sequence is first extracted from the data set. Then the Viterbi algorithm is used to solve the decoding problem, given (only) the observed sequence of symbols from the data set. 
 
-INSERT CODE BLOCK HERE!
+<<>>=
+# Load the data set.
+data(casino) 
+
+# The actual path is stored in the names attribute of the sequence.
+actual <- c("F", "L")[match(names(casino), c("Fair", "Loaded"))]
+
+# Find the predicted path.
+vit1 <- Viterbi(x, casino)
+
+# vit1 contains several types of information. 
+names(vit1)
+
+# The predicted path from the Viterbi algorithm. 
+predicted <- c("F", "L")[vit1$path + 1]
+# Note the path element of the output Viterbi object is an integer vector.
+# The addition of 1 to the path converts from C/C++ to R's indexing style.
+
+# Comparing the predicted and the actual path. 
+(df <- rbind(actual = actual, predicted = predicted))
+@
 
 The training problem can also be solved using the library. The function used below uses the method described in chapter 3.3 in Durbin et al, which assumes that the state sequences in all the training data is known \cite{Durbin1998}. It derives a standard HMM from the sequence in the data set, which is plotted. 
 
-INSERT CODE BLOCK HERE!
+\begin{center}
+<<fig.height = 4>>=
+y <- deriveHMM(list(casino), logspace = FALSE)
+plot(y, textexp = 1.5)
+
+# Optionally add the transition probabilities as text.
+text(x = 0.02, y = 0.5, labels = round(y$A["Fair", "Fair"], 2))
+text(x = 0.51, y = 0.5, labels = round(y$A["Loaded", "Loaded"], 2))
+text(x = 0.5, y = 0.9, labels = round(y$A["Fair", "Loaded"], 2))
+text(x = 0.5, y = 0.1, labels = round(y$A["Loaded", "Fair"], 2))
+@
+\end{center}
 
 Despite the fact that the function is only fed with one sequence (which is all our data set contains), the parameters of the HMM are estimated relatively closely to the correct model. Usually, we will feed a training algorithm with many more sequences, such that the correct model is more closely mirrored. The library contains more methods for solving the training problem, for both standard HMMs and pro-HMMs, but this is the most simple example. The vignette contains examples on the use of these as well \cite{Wilkinson2017}.
 
 Lastly, how a pro-HMM, as introducted in section \ref{Section:Profile-HMM}, can be derived from a sequence is shown. The library contains another data set called \textit{globins}. This contains small globin alignment data, which is taken from figure 5.3 in Durbin et al \cite{Durbin1998}. This alignment data can be used to build a pro-HMM, as shown below. 
 
-INSERT CODE BLOCK HERE!
+\begin{center}
+<<fig.height = 5>>=
+data(globins)
+globins
+
+globins.PHMM <- derivePHMM(globins, residues = "AMINO", pseudocounts = "Laplace")
+plot(globins.PHMM)
+@
+\end{center}
 
 \newpage
 

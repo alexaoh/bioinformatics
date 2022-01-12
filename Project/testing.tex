@@ -49,6 +49,9 @@
 \newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
 
 \usepackage{alltt}
+\usepackage[]{graphicx}
+\usepackage[]{color}
+\usepackage{alltt}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -67,6 +70,7 @@
 \title{Hidden Markov Models in Bioinformatics}
 \author{Alexander J Ohrt - UPC}
 \date{\today}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 \maketitle
@@ -480,13 +484,6 @@ and
       0.1 & 0.4 & 0.4 & 0.1 \\
   \end{bmatrix}.
 \end{equation*}
-The code block below shows one simple example of how this example HMM can be simulated. The function takes four inputs; the transition matrix, the emission matrix, the length of sequence that one wants to simulate and the initial state probabilities. 
-
-INSERT CODE BLOCK HERE!
-
-For example, the code block below shows how a HMM of length $n = 1000$, according to the specifications listed above, can be simulated, using the function `generate.sequences`.
-
-INSERT CODE BLOCK HERE!
 
 \tikzstyle{startend}=[shape=circle,draw=black, very thick, minimum size=0.5cm]
 \tikzstyle{state}=[shape=circle,draw=black, very thick, minimum size=1cm]
@@ -496,64 +493,148 @@ INSERT CODE BLOCK HERE!
 \tikzstyle{mainedge}=[<-,thick]
 
 \begin{figure}[htbp]
-\begin{center}
-\begin{tikzpicture}[every left delimiter/.style={xshift=1ex}]
+    \begin{center}
+    \begin{tikzpicture}[every left delimiter/.style={xshift=1ex}]
+        
+        % states
+        \node[state] (s1) at (3.33,0) {$AT$};
+        \node[state] (s3) at (6.66,0) {$CG$};
     
-    % states
-    \node[state] (s1) at (3.33,0) {$AT$};
-    \node[state] (s3) at (6.66,0) {$CG$};
-
-    %loopback prob labels
-    \node[below = 0.25cm of s1, inner sep=0pt, outer sep = 0pt, minimum size = 25pt]
-            (s1loopback) {0.8};
-    \node[below = 0.25cm of s3, inner sep=0pt, outer sep = 0pt, minimum size = 25pt]
-            (s3loopback) {0.8};
-
-    %emission probabilities
-    \node[align=center, above left = 1cm and -1cm of s1, blue] (emit1) {
-        \(
-        \begin{cases}
-            A = 0.4 \\
-            C = 0.1 \\
-            G = 0.1 \\
-            T = 0.4
-        \end{cases}
-        \)
-    };
-    \node[align=center, above right = 1cm and -1cm of s3, blue] (emit3) {
-        \(
-        \begin{cases}
-            A = 0.1 \\
-            C = 0.4 \\
-            G = 0.4 \\
-            T = 0.1
-        \end{cases}
-        \)
-    };
+        %loopback prob labels
+        \node[below = 0.25cm of s1, inner sep=0pt, outer sep = 0pt, minimum size = 25pt]
+                (s1loopback) {0.8};
+        \node[below = 0.25cm of s3, inner sep=0pt, outer sep = 0pt, minimum size = 25pt]
+                (s3loopback) {0.8};
+    
+        %emission probabilities
+        \node[align=center, above left = 1cm and -1cm of s1, blue] (emit1) {
+            \(
+            \begin{cases}
+                A = 0.4 \\
+                C = 0.1 \\
+                G = 0.1 \\
+                T = 0.4
+            \end{cases}
+            \)
+        };
+        \node[align=center, above right = 1cm and -1cm of s3, blue] (emit3) {
+            \(
+            \begin{cases}
+                A = 0.1 \\
+                C = 0.4 \\
+                G = 0.4 \\
+                T = 0.1
+            \end{cases}
+            \)
+        };
+                
+        %all edges
+        \path[]
             
-    %all edges
-    \path[]
-        
-        (s1) edge [-{>[scale=1]}, out=30, in=150, thick, midway, above] node {0.2} (s3)
-        
-        (s3) edge [-{>[scale=1]}, out = 210, in = 330, thick, midway, above] node {0.2} (s1)
-
-        %  Loop back edges
-        (s1) edge [thick, out=300, in=0] (s1loopback)
-        (s1loopback) edge [thick, -{>[scale=1]}, out=180, in=240] (s1)
-        (s3) edge [thick, out=300, in=0] (s3loopback)
-        (s3loopback) edge [thick, -{>[scale=1]}, out=180, in=240] (s3)
-        
-        
-        %   Connect emission probs
-        (emit1) edge [thick, blue, out=225, in=135] (s1)
-        (emit3) edge [thick, blue, out=315, in=45] (s3);
-
-\end{tikzpicture}
-\end{center}
-\caption{HMM topology for example on modelling the cleavage of a DNA sequence between areas rich in CG or AT. Note that the initial state probabilites are omitted from this figure. }
-\label{fig:toy_hmm}
+            (s1) edge [-{>[scale=1]}, out=30, in=150, thick, midway, above] node {0.2} (s3)
+            
+            (s3) edge [-{>[scale=1]}, out = 210, in = 330, thick, midway, above] node {0.2} (s1)
+    
+            %  Loop back edges
+            (s1) edge [thick, out=300, in=0] (s1loopback)
+            (s1loopback) edge [thick, -{>[scale=1]}, out=180, in=240] (s1)
+            (s3) edge [thick, out=300, in=0] (s3loopback)
+            (s3loopback) edge [thick, -{>[scale=1]}, out=180, in=240] (s3)
+            
+            
+            %   Connect emission probs
+            (emit1) edge [thick, blue, out=225, in=135] (s1)
+            (emit3) edge [thick, blue, out=315, in=45] (s3);
+    
+    \end{tikzpicture}
+    \end{center}
+    \caption{HMM topology for example on modelling the cleavage of a DNA sequence between areas rich in CG or AT. Note that the initial state probabilites are omitted from this figure. }
+    \label{fig:toy_hmm}
 \end{figure}
+
+
+The code block below shows one simple example of how this example HMM can be simulated. The function takes four inputs; the transition matrix, the emission matrix, the length of sequence that one wants to simulate and the initial state probabilities. 
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{generate.sequences} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{Tr}\hlstd{,} \hlkwc{Em}\hlstd{,} \hlkwc{n}\hlstd{,} \hlkwc{p}\hlstd{)\{}
+    \hlcom{# Tr = transition matrix.}
+    \hlcom{# Em = emission matrix.}
+    \hlcom{# n = length of generated sequence.}
+    \hlcom{# p = initial state probabilities. }
+
+  \hlstd{symbols} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"A"}\hlstd{,} \hlstr{"C"}\hlstd{,} \hlstr{"G"}\hlstd{,} \hlstr{"T"}\hlstd{)}
+  \hlstd{states} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{2}\hlstd{)} \hlcom{# 1 = AT and 2 = CG}
+
+  \hlcom{# x are hidden states and y are observed symbols. }
+  \hlstd{x} \hlkwb{<-} \hlstd{y} \hlkwb{<-} \hlkwd{rep}\hlstd{(}\hlnum{NA}\hlstd{,} \hlkwc{length.out} \hlstd{= n)}
+
+  \hlstd{x[}\hlnum{1}\hlstd{]} \hlkwb{<-} \hlkwd{sample}\hlstd{(states,} \hlkwc{size} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{prob} \hlstd{= p)}
+  \hlstd{y[}\hlnum{1}\hlstd{]} \hlkwb{<-} \hlkwd{sample}\hlstd{(symbols,} \hlkwc{size} \hlstd{=} \hlnum{1}\hlstd{,}\hlkwc{replace}\hlstd{=T,}\hlkwc{prob} \hlstd{= Em[x[}\hlnum{1}\hlstd{],])}
+
+  \hlkwa{for}\hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{(n}\hlopt{-}\hlnum{1}\hlstd{))\{}
+    \hlstd{x[i}\hlopt{+}\hlnum{1}\hlstd{]} \hlkwb{<-} \hlkwd{sample}\hlstd{(states,} \hlkwc{size} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{prob} \hlstd{= Tr[,x[i]])}
+    \hlstd{y[i}\hlopt{+}\hlnum{1}\hlstd{]} \hlkwb{<-} \hlkwd{sample}\hlstd{(symbols,} \hlkwc{size} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{prob} \hlstd{= Em[x[i], ])}
+  \hlstd{\}}
+  \hlkwd{return}\hlstd{(}\hlkwd{cbind}\hlstd{(}\hlstr{"Hidden"} \hlstd{= x,} \hlstr{"Obs"} \hlstd{= y))}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+For example, the code block below shows how a HMM of length $n = 1000$, according to the specifications listed above, can be simulated, using the function `generate.sequences`.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{# Transition matrix (A).}
+\hlstd{A} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0.8}\hlstd{,} \hlnum{0.2}\hlstd{,} \hlnum{0.2}\hlstd{,} \hlnum{0.8}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{rownames}\hlstd{(A)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"AT"}\hlstd{,} \hlstr{"CG"}\hlstd{)}
+\hlkwd{colnames}\hlstd{(A)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"AT"}\hlstd{,} \hlstr{"CG"}\hlstd{)}
+\hlstd{A}
+\end{alltt}
+\begin{verbatim}
+##     AT  CG
+## AT 0.8 0.2
+## CG 0.2 0.8
+\end{verbatim}
+\begin{alltt}
+\hlcom{# Emission matrix (E).}
+\hlstd{E} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0.4}\hlstd{,} \hlnum{0.1}\hlstd{,} \hlnum{0.1}\hlstd{,} \hlnum{0.4}\hlstd{,} \hlnum{0.1}\hlstd{,} \hlnum{0.4}\hlstd{,} \hlnum{0.4}\hlstd{,} \hlnum{0.1}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlkwd{rownames}\hlstd{(E)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"AT"}\hlstd{,} \hlstr{"CG"}\hlstd{)}
+\hlkwd{colnames}\hlstd{(E)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"A"}\hlstd{,} \hlstr{"C"}\hlstd{,} \hlstr{"G"}\hlstd{,} \hlstr{"T"}\hlstd{)}
+\hlstd{E}
+\end{alltt}
+\begin{verbatim}
+##      A   C   G   T
+## AT 0.4 0.1 0.1 0.4
+## CG 0.1 0.4 0.4 0.1
+\end{verbatim}
+\begin{alltt}
+\hlcom{# Initial probabilities.}
+\hlstd{p} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,}\hlnum{0.8}\hlstd{)}
+
+\hlcom{# Length of the sequence.}
+\hlstd{n} \hlkwb{<-} \hlnum{1000}
+
+\hlcom{# Generate the sequences. }
+\hlstd{df} \hlkwb{<-} \hlkwd{generate.sequences}\hlstd{(A, E, n, p)}
+
+\hlcom{# The first 5 steps in the chains is printed below. }
+\hlstd{df[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{, ]}
+\end{alltt}
+\begin{verbatim}
+##      Hidden Obs
+## [1,] "2"    "C"
+## [2,] "2"    "G"
+## [3,] "2"    "T"
+## [4,] "1"    "A"
+## [5,] "1"    "G"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
 
 Chapter 10.6 in \cite{Krijnen2009} is a good reference for some more simple manual implementations of MCs and HMMs in R. Although it is always recommended to try to implement methods manually at first, because it helps to understand the theory to a greater degree, the use of libraries always gives more flexibility. Moreover, libraries are very often optimized, such that the performance and reliability of the code is guaranteed. We will be diving deeper into one such library for HMMs in R in the following. 
 
@@ -562,29 +643,286 @@ Chapter 10.6 in \cite{Krijnen2009} is a good reference for some more simple manu
 The \textit{aphid} library in R was "designed for the development and application of hidden Markov models and profile HMMs for biological sequence analysis", as the author states in the package description in the \textit{Comprehensive R Archive Network} (CRAN) \cite{CRAN}. There exists a great vignette for the package, written by the author of \textit{aphid}  himself, which we will be following to some degree here \cite{Wilkinson2017}. It contains several examples of how the package can be used, as well as descriptions of exactly what it contains. As will be shown, the library even has plotting capabilites, i.e. it can plot a diagram, similar to the one seen in figure \ref{fig:toy_hmm}, representing the HMM in a particular case. For more information, or if anything is unclear, consult this vignette and the documentation of the library. 
 
 \subsubsection{Fair Bet Casino}
-A typical first example of the use of a HMM is the so-called "Fair Bet Casino" \cite{Jones2004}. In this casino, a dealer flips a coin and a player bets on the outcome. The dealer uses either a fair coin, where flipping either heads or tails is equally likely, or a biased coin, where one of the sides is much more likely. For the sake of this demonstration, heads is given the probability $\frac34$. Moreover, the dealer does not like to switch coins very often. In this case, the switch only happens with probability $\frac17$. Moreover, we assume that the dealer starts with the fair coin in 99\% of the games he deals. Given a sequence of coin tosses, the player wants to figure out which of the coins the dealer has used, since this can help the player to win more money. Hopefully it is clear to you that this problem can be modelled as a standard HMM, as introduced in section \ref{Section:StandardHMM}. This can be done in a very simple manner, via the \textit{aphid}  library, as shown below.   
+A typical first example of the use of a HMM is the so-called "Fair Bet Casino" \cite{Jones2004}. In this casino, a dealer flips a coin and a player bets on the outcome. The dealer uses either a fair coin, where flipping either heads or tails is equally likely, or a biased coin, where one of the sides is much more likely. For the sake of this demonstration, heads is given the probability $\frac34$. Moreover, the dealer does not like to switch coins very often. In this case, the switch only happens with probability $\frac17$. Moreover, we assume that the dealer starts with the fair coin in 99\% of the games he deals. Given a sequence of coin tosses, the player wants to figure out which of the coins the dealer has used, since this can help the player to win more money. Hopefully it is clear to you that this problem can be modelled as a standard HMM, as introduced in section \ref{Section:StandardHMM}. This can be done in a very simple manner, via the \textit{aphid} library, as shown below.   
 
-INSERT CODE BLOCK HERE!
+\begin{center}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(}\hlstr{"aphid"}\hlstd{)}
+\hlstd{states} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"Begin"}\hlstd{,} \hlstr{"Fair"}\hlstd{,} \hlstr{"Biased"}\hlstd{)}
+\hlstd{symbols} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"H"}\hlstd{,} \hlstr{"T"}\hlstd{)}
+
+\hlcom{# Define transition probability matrix A.}
+\hlstd{A} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.99}\hlstd{,} \hlnum{6}\hlopt{/}\hlnum{7}\hlstd{,} \hlnum{1}\hlopt{/}\hlnum{7}\hlstd{,} \hlnum{0.1}\hlstd{,} \hlnum{1}\hlopt{/}\hlnum{7}\hlstd{,} \hlnum{6}\hlopt{/}\hlnum{7}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{dimnames}\hlstd{(A)} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{from} \hlstd{= states,} \hlkwc{to} \hlstd{= states)}
+\hlstd{A}
+\end{alltt}
+\begin{verbatim}
+##         to
+## from     Begin      Fair    Biased
+##   Begin      0 0.9900000 0.1000000
+##   Fair       0 0.8571429 0.1428571
+##   Biased     0 0.1428571 0.8571429
+\end{verbatim}
+\begin{alltt}
+\hlcom{# Define emission probability matrix E.}
+\hlstd{E} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlnum{1}\hlopt{/}\hlnum{2}\hlstd{,} \hlnum{2}\hlstd{),} \hlnum{3}\hlopt{/}\hlnum{4}\hlstd{,} \hlnum{1}\hlopt{/}\hlnum{4}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{byrow} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{dimnames}\hlstd{(E)} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{states} \hlstd{= states[}\hlopt{-}\hlnum{1}\hlstd{],} \hlkwc{symbols} \hlstd{= symbols)}
+\hlstd{E}
+\end{alltt}
+\begin{verbatim}
+##         symbols
+## states      H    T
+##   Fair   0.50 0.50
+##   Biased 0.75 0.25
+\end{verbatim}
+\begin{alltt}
+\hlcom{# Create the HMM object.}
+\hlstd{x} \hlkwb{<-} \hlkwd{structure}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{A} \hlstd{= A,} \hlkwc{E} \hlstd{= E),} \hlkwc{class} \hlstd{=} \hlstr{"HMM"}\hlstd{)}
+
+\hlcom{# Plot the model.}
+\hlkwd{plot}\hlstd{(x,} \hlkwc{textexp} \hlstd{=} \hlnum{1.5}\hlstd{)}
+
+\hlcom{# Optionally add the transition probabilities as text.}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.02}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlstr{"6/7"}\hlstd{)}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.53}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlstr{"6/7"}\hlstd{)}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.3}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlstr{"1/7"}\hlstd{)}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.7}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlstr{"1/7"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-3-1} 
+\end{knitrout}
+\end{center}
 
 Interestingly, this simple version of the "Fair Bet Casino" can be used to find so-called "CG-islands", which are genomic regions where CG appears frequently compared to other areas in the rest of the genome. The reader is referred to chapter 11 in Jones and Pevzner's \textit{An Introduction to Bioinformatics Algorithms} for an interesting read concerning this example \cite{Jones2004}.
 
 In order to highlight some more of the capabilities of the library, another example of such an imaginary casino will be used, based on chapter 3.2 in Durbin et al \cite{Durbin1998}. This casino has two dice, one fair and one weighted. The fair dice emits each of the six sides with equal probabilites, while the probability of rolling a "6" is $\frac{1}{2}$ for the loaded dice, while the probability of rolling any of the other sides is $\frac{1}{10}$. The dealer switches from the fair dice to the loaded dice with probability $\frac{5}{100}$ and from the loaded dice to the fair dice with probability $\frac{1}{10}$. This situation is modelled with the library in the following block of code. 
 
-INSERT CODE BLOCK HERE!
+\begin{center}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{states} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"Begin"}\hlstd{,} \hlstr{"Fair"}\hlstd{,} \hlstr{"Loaded"}\hlstd{)}
+\hlstd{residues} \hlkwb{<-} \hlkwd{paste}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{6}\hlstd{)}
+
+\hlcom{# Define transition probability matrix A.}
+\hlstd{A} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0.99}\hlstd{,} \hlnum{0.95}\hlstd{,} \hlnum{0.1}\hlstd{,} \hlnum{0.01}\hlstd{,} \hlnum{0.05}\hlstd{,} \hlnum{0.9}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{3}\hlstd{)}
+\hlkwd{dimnames}\hlstd{(A)} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{from} \hlstd{= states,} \hlkwc{to} \hlstd{= states)}
+\hlstd{A}
+\end{alltt}
+\begin{verbatim}
+##         to
+## from     Begin Fair Loaded
+##   Begin      0 0.99   0.01
+##   Fair       0 0.95   0.05
+##   Loaded     0 0.10   0.90
+\end{verbatim}
+\begin{alltt}
+\hlcom{# Define emission probability matrix E.}
+\hlstd{E} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlnum{1}\hlopt{/}\hlnum{6}\hlstd{,} \hlnum{6}\hlstd{),} \hlkwd{rep}\hlstd{(}\hlnum{1}\hlopt{/}\hlnum{10}\hlstd{,} \hlnum{5}\hlstd{),} \hlnum{1}\hlopt{/}\hlnum{2}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{byrow} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{dimnames}\hlstd{(E)} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{states} \hlstd{= states[}\hlopt{-}\hlnum{1}\hlstd{],} \hlkwc{residues} \hlstd{= residues)}
+\hlstd{E}
+\end{alltt}
+\begin{verbatim}
+##         residues
+## states           1         2         3         4         5         6
+##   Fair   0.1666667 0.1666667 0.1666667 0.1666667 0.1666667 0.1666667
+##   Loaded 0.1000000 0.1000000 0.1000000 0.1000000 0.1000000 0.5000000
+\end{verbatim}
+\begin{alltt}
+\hlcom{# Create the HMM object.}
+\hlstd{x} \hlkwb{<-} \hlkwd{structure}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{A} \hlstd{= A,} \hlkwc{E} \hlstd{= E),} \hlkwc{class} \hlstd{=} \hlstr{"HMM"}\hlstd{)}
+
+\hlcom{# Plot the model.}
+\hlkwd{plot}\hlstd{(x,} \hlkwc{textexp} \hlstd{=} \hlnum{1.5}\hlstd{)}
+
+\hlcom{# Optionally add the transition probabilities as text.}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.02}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlstr{"0.95"}\hlstd{)}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.51}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlstr{"0.90"}\hlstd{)}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlstr{"0.05"}\hlstd{)}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.1}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlstr{"0.10"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-4-1} 
+\end{knitrout}
+\end{center}
 
 Let us solve the decoding problem for a given observed sequence of dice residuals. The library includes a few data sets, where one of the data sets is called \textit{casino}, which is data taken from this exact example. The data contains the result of 300 rolls of the dice that switched from fair to loaded, i.e. a sequence from the data set contains the hidden MC and the observed sequence of symbols. In the code block below, the hidden MC state sequence is first extracted from the data set. Then the Viterbi algorithm is used to solve the decoding problem, given (only) the observed sequence of symbols from the data set. 
 
-INSERT CODE BLOCK HERE!
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{# Load the data set.}
+\hlkwd{data}\hlstd{(casino)}
+
+\hlcom{# The actual path is stored in the names attribute of the sequence.}
+\hlstd{actual} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"F"}\hlstd{,} \hlstr{"L"}\hlstd{)[}\hlkwd{match}\hlstd{(}\hlkwd{names}\hlstd{(casino),} \hlkwd{c}\hlstd{(}\hlstr{"Fair"}\hlstd{,} \hlstr{"Loaded"}\hlstd{))]}
+
+\hlcom{# Find the predicted path.}
+\hlstd{vit1} \hlkwb{<-} \hlkwd{Viterbi}\hlstd{(x, casino)}
+
+\hlcom{# vit1 contains several types of information. }
+\hlkwd{names}\hlstd{(vit1)}
+\end{alltt}
+\begin{verbatim}
+## [1] "score"   "path"    "array"   "pointer"
+\end{verbatim}
+\begin{alltt}
+\hlcom{# The predicted path from the Viterbi algorithm. }
+\hlstd{predicted} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"F"}\hlstd{,} \hlstr{"L"}\hlstd{)[vit1}\hlopt{$}\hlstd{path} \hlopt{+} \hlnum{1}\hlstd{]}
+\hlcom{# Note the path element of the output Viterbi object is an integer vector.}
+\hlcom{# The addition of 1 to the path converts from C/C++ to R's indexing style.}
+
+\hlcom{# Comparing the predicted and the actual path. }
+\hlstd{(df} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlkwc{actual} \hlstd{= actual,} \hlkwc{predicted} \hlstd{= predicted))}
+\end{alltt}
+\begin{verbatim}
+##           [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
+## actual    "F"  "F"  "F"  "F"  "F"  "F"  "F"  "F"  "F"  "F"   "F"   "F"   "F"  
+## predicted "F"  "F"  "F"  "F"  "F"  "F"  "F"  "F"  "F"  "F"   "F"   "F"   "F"  
+##           [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24]
+## actual    "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"  
+## predicted "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"  
+##           [,25] [,26] [,27] [,28] [,29] [,30] [,31] [,32] [,33] [,34] [,35]
+## actual    "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"  
+## predicted "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"  
+##           [,36] [,37] [,38] [,39] [,40] [,41] [,42] [,43] [,44] [,45] [,46]
+## actual    "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "L"  
+## predicted "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"  
+##           [,47] [,48] [,49] [,50] [,51] [,52] [,53] [,54] [,55] [,56] [,57]
+## actual    "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"  
+## predicted "F"   "F"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"  
+##           [,58] [,59] [,60] [,61] [,62] [,63] [,64] [,65] [,66] [,67] [,68]
+## actual    "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "F"   "F"  
+## predicted "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "F"   "F"  
+##           [,69] [,70] [,71] [,72] [,73] [,74] [,75] [,76] [,77] [,78] [,79]
+## actual    "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "L"  
+## predicted "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "F"   "L"  
+##           [,80] [,81] [,82] [,83] [,84] [,85] [,86] [,87] [,88] [,89] [,90]
+## actual    "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"  
+## predicted "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"  
+##           [,91] [,92] [,93] [,94] [,95] [,96] [,97] [,98] [,99] [,100] [,101]
+## actual    "L"   "L"   "L"   "L"   "F"   "F"   "F"   "L"   "L"   "L"    "L"   
+## predicted "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"   "L"    "L"   
+##           [,102] [,103] [,104] [,105] [,106] [,107] [,108] [,109] [,110] [,111]
+## actual    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"   
+## predicted "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"   
+##           [,112] [,113] [,114] [,115] [,116] [,117] [,118] [,119] [,120] [,121]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "L"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,122] [,123] [,124] [,125] [,126] [,127] [,128] [,129] [,130] [,131]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "L"    "L"    "L"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,132] [,133] [,134] [,135] [,136] [,137] [,138] [,139] [,140] [,141]
+## actual    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,142] [,143] [,144] [,145] [,146] [,147] [,148] [,149] [,150] [,151]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,152] [,153] [,154] [,155] [,156] [,157] [,158] [,159] [,160] [,161]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,162] [,163] [,164] [,165] [,166] [,167] [,168] [,169] [,170] [,171]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,172] [,173] [,174] [,175] [,176] [,177] [,178] [,179] [,180] [,181]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "L"    "L"    "L"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "L"    "L"   
+##           [,182] [,183] [,184] [,185] [,186] [,187] [,188] [,189] [,190] [,191]
+## actual    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "F"    "F"    "F"   
+## predicted "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"   
+##           [,192] [,193] [,194] [,195] [,196] [,197] [,198] [,199] [,200] [,201]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "L"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,202] [,203] [,204] [,205] [,206] [,207] [,208] [,209] [,210] [,211]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,212] [,213] [,214] [,215] [,216] [,217] [,218] [,219] [,220] [,221]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,222] [,223] [,224] [,225] [,226] [,227] [,228] [,229] [,230] [,231]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,232] [,233] [,234] [,235] [,236] [,237] [,238] [,239] [,240] [,241]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,242] [,243] [,244] [,245] [,246] [,247] [,248] [,249] [,250] [,251]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,252] [,253] [,254] [,255] [,256] [,257] [,258] [,259] [,260] [,261]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+##           [,262] [,263] [,264] [,265] [,266] [,267] [,268] [,269] [,270] [,271]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "L"    "L"    "L"    "L"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "L"   
+##           [,272] [,273] [,274] [,275] [,276] [,277] [,278] [,279] [,280] [,281]
+## actual    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"   
+## predicted "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"   
+##           [,282] [,283] [,284] [,285] [,286] [,287] [,288] [,289] [,290] [,291]
+## actual    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "F"    "F"   
+## predicted "L"    "L"    "L"    "L"    "L"    "L"    "L"    "L"    "F"    "F"   
+##           [,292] [,293] [,294] [,295] [,296] [,297] [,298] [,299] [,300]
+## actual    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"   
+## predicted "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"    "F"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 The training problem can also be solved using the library. The function used below uses the method described in chapter 3.3 in Durbin et al, which assumes that the state sequences in all the training data is known \cite{Durbin1998}. It derives a standard HMM from the sequence in the data set, which is plotted. 
 
-INSERT CODE BLOCK HERE!
+\begin{center}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{y} \hlkwb{<-} \hlkwd{deriveHMM}\hlstd{(}\hlkwd{list}\hlstd{(casino),} \hlkwc{logspace} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlkwd{plot}\hlstd{(y,} \hlkwc{textexp} \hlstd{=} \hlnum{1.5}\hlstd{)}
+
+\hlcom{# Optionally add the transition probabilities as text.}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.02}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlkwd{round}\hlstd{(y}\hlopt{$}\hlstd{A[}\hlstr{"Fair"}\hlstd{,} \hlstr{"Fair"}\hlstd{],} \hlnum{2}\hlstd{))}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.51}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlkwd{round}\hlstd{(y}\hlopt{$}\hlstd{A[}\hlstr{"Loaded"}\hlstd{,} \hlstr{"Loaded"}\hlstd{],} \hlnum{2}\hlstd{))}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.9}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlkwd{round}\hlstd{(y}\hlopt{$}\hlstd{A[}\hlstr{"Fair"}\hlstd{,} \hlstr{"Loaded"}\hlstd{],} \hlnum{2}\hlstd{))}
+\hlkwd{text}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.5}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{0.1}\hlstd{,} \hlkwc{labels} \hlstd{=} \hlkwd{round}\hlstd{(y}\hlopt{$}\hlstd{A[}\hlstr{"Loaded"}\hlstd{,} \hlstr{"Fair"}\hlstd{],} \hlnum{2}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-1} 
+\end{knitrout}
+\end{center}
 
 Despite the fact that the function is only fed with one sequence (which is all our data set contains), the parameters of the HMM are estimated relatively closely to the correct model. Usually, we will feed a training algorithm with many more sequences, such that the correct model is more closely mirrored. The library contains more methods for solving the training problem, for both standard HMMs and pro-HMMs, but this is the most simple example. The vignette contains examples on the use of these as well \cite{Wilkinson2017}.
 
 Lastly, how a pro-HMM, as introducted in section \ref{Section:Profile-HMM}, can be derived from a sequence is shown. The library contains another data set called \textit{globins}. This contains small globin alignment data, which is taken from figure 5.3 in Durbin et al \cite{Durbin1998}. This alignment data can be used to build a pro-HMM, as shown below. 
 
-INSERT CODE BLOCK HERE!
+\begin{center}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{data}\hlstd{(globins)}
+\hlstd{globins}
+\end{alltt}
+\begin{verbatim}
+##            [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
+## HBA_HUMAN  "V"  "G"  "A"  "-"  "-"  "H"  "A"  "G"  "E"  "Y"  
+## HBB_HUMAN  "V"  "-"  "-"  "-"  "-"  "N"  "V"  "D"  "E"  "V"  
+## MYG_PHYCA  "V"  "E"  "A"  "-"  "-"  "D"  "V"  "A"  "G"  "H"  
+## GLB3_CHITP "V"  "K"  "G"  "-"  "-"  "-"  "-"  "-"  "-"  "D"  
+## GLB5_PETMA "V"  "Y"  "S"  "-"  "-"  "T"  "Y"  "E"  "T"  "S"  
+## LGB2_LUPLU "F"  "N"  "A"  "-"  "-"  "N"  "I"  "P"  "K"  "H"  
+## GLB1_GLYDI "I"  "A"  "G"  "A"  "D"  "N"  "G"  "A"  "G"  "V"
+\end{verbatim}
+\begin{alltt}
+\hlstd{globins.PHMM} \hlkwb{<-} \hlkwd{derivePHMM}\hlstd{(globins,} \hlkwc{residues} \hlstd{=} \hlstr{"AMINO"}\hlstd{,} \hlkwc{pseudocounts} \hlstd{=} \hlstr{"Laplace"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Applying uniform sequence weights
+\end{verbatim}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(globins.PHMM)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-7-1} 
+\end{knitrout}
+\end{center}
 
 \newpage
 
