@@ -18,9 +18,34 @@
 \usepackage{xfrac}
 
 \title{Hidden Markov Models in Bioinformatics}
-\author{Alexander J Ohrt - UPC}
+
+\author{Alexander J Ohrt}
 \date{\today}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+
+\makeatletter
+\def\@maketitle{%
+  \newpage
+  \null
+  \vskip 2em%
+  \begin{center}%
+  \let \footnote \thanks
+    {\LARGE \@title \par}%
+    \vskip 1em%
+    {\large Fonaments de Bioinformàtica \\ Curs 21/22 \\ MESIO UPC-UB \par}%
+    \vskip 1.5em%
+    {\large
+      \lineskip .5em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em%
+    {\large \@date}%
+  \end{center}%
+  \par
+  \vskip 1.5em}
+\makeatother
+
 \begin{document}
 \maketitle
 
