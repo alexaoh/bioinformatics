@@ -587,6 +587,7 @@ For example, the code block below shows how a HMM of length $n = 1000$, accordin
 \hlstd{n} \hlkwb{<-} \hlnum{1000}
 
 \hlcom{# Generate the sequences. }
+\hlkwd{set.seed}\hlstd{(}\hlnum{1234}\hlstd{)}
 \hlstd{df} \hlkwb{<-} \hlkwd{generate.sequences}\hlstd{(A, E, n, p)}
 
 \hlcom{# The first 5 steps in the chains is printed below. }
@@ -594,11 +595,11 @@ For example, the code block below shows how a HMM of length $n = 1000$, accordin
 \end{alltt}
 \begin{verbatim}
 ##      Hidden Obs
-## [1,] "2"    "A"
-## [2,] "2"    "C"
-## [3,] "2"    "G"
-## [4,] "2"    "C"
-## [5,] "2"    "G"
+## [1,] "2"    "G"
+## [2,] "2"    "G"
+## [3,] "1"    "G"
+## [4,] "1"    "A"
+## [5,] "1"    "T"
 \end{verbatim}
 \end{kframe}
 \end{knitrout}

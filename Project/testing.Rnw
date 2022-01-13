@@ -518,6 +518,7 @@ p <- c(0.2,0.8)
 n <- 1000
 
 # Generate the sequences. 
+set.seed(1234)
 df <- generate.sequences(A, E, n, p)
 
 # The first 5 steps in the chains is printed below. 
