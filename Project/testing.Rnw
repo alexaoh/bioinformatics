@@ -52,53 +52,53 @@
 \tableofcontents
 
 \section{Introduction}
-The stochastic models known as Hidden Markov models (HMMs) are popular tools in the field of Bioinformatics. They are versatile models that can be used for many different purposes. Some of the problems that can be solved with different variants of HMMs are pairwise sequence alignment (PSA), multiple sequence alignment (MSA), protein structure prediction, protein function prediction, segmentation and protein homology detection. Note that this is by no means an exhaustive list, but only a few examples of problems where HMMs have been successfully applied. 
+The stochastic models known as Hidden Markov models (HMMs) are popular tools in the field of bioinformatics. They are versatile models that can be used for many different purposes. Some of the problems that can be solved with different variants of HMMs are pairwise sequence alignment (PSA), multiple sequence alignment (MSA), protein structure prediction, protein function prediction, segmentation and protein homology detection. Note that this is by no means an exhaustive list, but only a few examples of problems where HMMs have been successfully applied. 
 
-\section{Objectives}
+\section{Objective}
 
-The main objective of this report is to explain why HMMs are widely used in Bioinformatics. It will explain and highlight why they are popular alternative tools for solving a wide range of problems in the field. In order to understand why HMMs are useful, and why they can be used effectively, some background on stochastic processses and Markov Chains is needed. Moreover, for completeness, a brief theoretical construct of some different HMMs will be done, alongside the most important algorithms for working with the models in practice. The experienced reader may skip these sections. In the remaining part of the report, a range of problems in Bioinformatics will be presented, first solved without the use of HMMs, then contrasted with the HMM based solutions. This will hopefully highlight why HMMs are effective alternatives. Note that, in many cases, the methods based on HMMs are not the be-all and end-all of models in Bioinformatics - many advances are continuously being made, some of which will be referenced a few places throughout this report as well. Finally, some practical examples in the open-source programming language R will be developed. Note that this report is by no means exhaustive; there exists a plethora of theory and problems where the HMMs can be used. 
+The main objective of this report is to explain why HMMs are widely used in bioinformatics. It will explain and highlight why they are popular alternative tools for solving a wide range of problems in the field. In order to properly understand why HMMs are useful, and why they can be used effectively, some background on stochastic processses and Markov Chains is needed. Moreover, for completeness, a brief theoretical presentation of some different HMMs will be done, alongside the most important algorithms for working with the models in practice. The experienced reader may skip these sections. In the remaining part of the report, a range of problems in bioinformatics will be presented, first solved without the use of HMMs, then contrasted with the HMM based solutions. This will hopefully highlight why HMMs are effective alternatives. Note that, in many cases, the methods based on HMMs are not the be-all and end-all of models in bioinformatics - many advances are continuously being made, some of which will be referenced a few places throughout this report. Finally, some practical examples in the open-source programming language R will be developed. Note that this report is by no means exhaustive; there exists a plethora of theory and problems where the HMMs can be used. 
 
 \section{Theoretical Background}
 
-Basic knowledge in statistics and probability theory is assumed. Any introductory book on probability and statistics will do, but a quick refresher can be found in the two first chapters of \cite{Pinsky2011}.
+Basic knowledge in statistics and probability theory is assumed. Any introductory book on probability and statistics will contain the necessary elements, but a quick refresher can be found in the two first chapters of \cite{Pinsky2011}.
 
-\subsection{Markov Chains}
-A Markov Chain (MC) $\mathbf{X} = \{X_t\}$ is a stochastic process which is characterized by one important property; given the value of $X_t$, the values of $X_b, \hspace{0.5em} b > t$ are not influenced by the values of $X_a, \hspace{0.5em} a < t$, where $a,b \in \mathbb{Z}$ decide what \textit{order} of MC we are working with. Choosing $b = t+1$ and $a = t-1$ yields the type of \textit{Markov property} we will be concentrating on in this case, which is referred to as a \textit{first-order} Markov property. More precisely, we have that 
+\subsection{Markov Chains (MCs)}
+A Markov chain (MC) $\mathbf{X} = \{X_t\}$ is a stochastic process which is characterized by one important property; given the value of $X_t$, the values of $X_b, \hspace{0.5em} b > t$, are not influenced by the values of $X_a, \hspace{0.5em} a < t$, where $a,b \in \mathbb{Z}$ decide what \textit{order} of MC we are working with. Choosing $b = t+1$ and $a = t-1$ yields the type of \textit{Markov property} we will be concentrating on in this case, which is commonly referred to as a \textit{first-order} Markov property. More precisely, we have that 
 
 \begin{equation*}
-     \text{P}(X_{t+1} = j|X_0 = i_0, X_1 = i_1, \ldots X_{t-1} = i_{t-1}, X_t = i) = \text{P}(X_{t+1} = j|X_t = i) =: \text{P}_{ij}^{t, t+1}, 
+     \text{P}(X_{t+1} = j|X_0 = i_0, X_1 = i_1, \ldots, X_{t-1} = i_{t-1}, X_t = i) = \text{P}(X_{t+1} = j|X_t = i) =: \text{P}_{ij}^{t, t+1}, 
 \end{equation*}
 where the superscripts highlight an important point; the \textit{one-step transition probability} does not only depend on the state, but also on the time when the transition occurs. In our case, we will concentrate on \textit{time-homogeneous} MCs, which means that the transition probabilites are stationary in time. Thus, we drop the superscripts in the notation and denote the transition probabilities as 
 
 \begin{equation*}
     \text{P}_{ij} = \text{P}(X_{t+1} = j|X_t = i).
 \end{equation*}
-In a MC, the random variable $X$ can only take values from a pre-specified set called \textit{states}. We will concentrate on the simplest type of state space, which yields a so-called \textit{discrete-time} MC. This is the case when the set of states is finite or countable set and whose time index is $T = (0,1,2,\ldots)$. Thus, we have described the assumptions made when working with the simplest form of MC, which we call a \textit{discrete-state time-homogeneous first-order MC} \cite{Pinsky2011}. These lay the foundation of the Hidden Markov models that we will study in the remainder of the report. 
+In a MC, the random variable $X$ can only take values from a pre-specified set called \textit{states}. We will concentrate on the simplest type of state space, which yields a so-called \textit{discrete-time} MC. This is the case when the set of states is finite or countable, with time index $T = (0,1,2,\ldots)$. Thus, we have described the assumptions made when working with the simplest form of MC, which we call a \textit{discrete-state time-homogeneous first-order MC} \cite{Pinsky2011}. These lay the foundation for the Hidden Markov models that we will study in the remainder of the report. 
 
-Let us define the notation that will be used in the remainder. First of all, let the random vector $\mathbf{X} = (X_0, X_1, \ldots, X_L)^T$ represent a MC of length $L+1$. In the following we will always assume that $\mathbf{X}$ is of finite length $L+1$. A realization of the random vector will be denoted in lower case, i.e. $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$, following standard notation in most probability or statistics courses. What exactly this means will become clear later. A discrete-time MC consists of a finite set of states, which will be denoted by $\mathcal{H} = \{h_0, \ldots, h_m\}$, where $m+1 = \text{card}(\mathcal{H})$ are the amount of states in the model. Why the letter $\mathcal{H}$ is chosen will hopefully become clear when studying the Hidden Markov models. The MC transitions between each of the states in $\mathcal{H}$, based on the set of \textit{transition probabilities}, which where denoted by $\text{P}_{ij}$ above. In the following, the notation $\mathcal{T}_{ij}$ will be adopted instead, for ease of recalling that they are transition probabilities. These are summarized in a $m \times m$-matrix $\mathcal{T}$, where each position $\mathcal{T}_{ij}$ represents the probability of a transition from state $i$ to state $j$, where $i, j \in \mathcal{H}$. Written in mathematical notation
+Let us define some notation. First of all, let the random vector $\mathbf{X} = (X_0, X_1, \ldots, X_L)^T$ represent a MC of length $L+1$. In the following we will always assume that $\mathbf{X}$ is of finite length $L+1$. A realization of the random vector will be denoted in lower case, i.e. $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$, following standard notation in most probability or statistics courses. What exactly this means will become clear later. A discrete-time MC consists of a finite set of states, which will be denoted by $\mathcal{H} = \{h_0, \ldots, h_m\}$, where $m+1 = \text{card}(\mathcal{H})$ are the amount of states in the model. Why the letter $\mathcal{H}$ is chosen will hopefully become clear when studying the Hidden Markov models. The MC transitions between each of the states in $\mathcal{H}$, based on a set of \textit{transition probabilities}, which where denoted by $\text{P}_{ij}$ above. In the following, the notation $\mathcal{T}_{ij}$ will be adopted instead, for ease of recalling that they are transition probabilities. These are summarized in a $(m+1) \times (m+1)$-matrix $\mathcal{T}$, where each position $\mathcal{T}_{ij}$ represents the probability of a transition from state $i$ to state $j$, where $i, j \in \mathcal{H}$. Written in mathematical notation
 
 \begin{equation*}
         \mathcal{T}_{ij} = \text{P}(X_{t+1} = j|X_{t} = i), \hspace{0.5em} i,j \in \mathcal{H}. 
 \end{equation*}
-As noted, the term \textit{time-homogeneous} refers to the fact that $\mathcal{T}$ does not change as time goes on, i.e. as the MC is generated, but stays fixed during the entire simulation of the chain. In mathematical notation, this assumption means that
+As noted, the term \textit{time-homogeneous} refers to the fact that $\mathcal{T}$ does not change as time goes on, i.e. as the MC is generated, but stays fixed during the entire simulation of the chain. In mathematical terms, this assumption means that
 
 \begin{equation*}
     \mathcal{T}_{ij} = \text{P}(X_{t+1} = j|X_{t} = i), \hspace{0.5em} i,j \in \mathcal{H}, \forall t \in [0,L].
 \end{equation*}
-Moreover, the term \textit{first-order} refers to an important assumption in this model, which makes it possible to define $\mathcal{T}$ as we did, which is that the transition probability from the previous state to the current state only depends on the previous state. For example, a time-homogeneous second-order MC would depend on the two previous states when transitioning to the current state, which makes the model more general, but also more complicated. Note that the initial state of a MC is determined based on the initial distribution of the states, commonly denoted by $\pi = (\pi(h_0), \ldots, \pi(h_m))$. The assumptions make calculations of probabilities in the MCs very simple, since they are strong independence assumptions. 
+Moreover, the term \textit{first-order} refers to an important assumption in this model, which makes it possible to define $\mathcal{T}$ as we did, which is that the transition probability from the previous state to the current state only depends on the previous state. For example, a time-homogeneous second-order MC would depend on the two previous states when transitioning to the current state, which makes the model more general, but also more complicated. Note that the initial state of a MC is determined based on the \textit{initial distribution} of the states, commonly denoted by $\pi = (\pi(h_0), \ldots, \pi(h_m))$. Notice that the assumptions we have made are strong independence assumptions, which yield simple probability calculations in the MCs.
 
-A MC is completely specified by $\pi$ and $\mathcal{T}$ (where $\mathcal{H}$ is indirectly given in both these two quantities). Once these quantities are specified, one can make calculations concerning the MC. The probability of a realization $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$ taking place can be calculated recursively as 
+A MC is completely specified by $\pi$ and $\mathcal{T}$ (where $\mathcal{H}$ is indirectly given in both these two quantities). Once these quantities are specified, one can make calculations concerning the MC. The probability of a realization $\mathbf{x} = (x_0, x_1, \ldots, x_L)^T$ can be calculated recursively as 
 
 \begin{align*}
-    \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_L = x_L) &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots X_{L-1} = x_{L-1})\\ 
-    &\cdot\text{P}(X_L = x_L|X_0 = x_0, X_1 = x_1, \ldots X_{L-1} = x_{L-1}) \\ 
-    &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots X_{L-1} = x_{L-1})\\&\cdot\text{P}(X_L = x_L|X_{L-1} = x_{L-1}) \\ 
+    \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_L = x_L) &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_{L-1} = x_{L-1})\\ 
+    &\cdot\text{P}(X_L = x_L|X_0 = x_0, X_1 = x_1, \ldots, X_{L-1} = x_{L-1}) \\ 
+    &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_{L-1} = x_{L-1})\\&\cdot\text{P}(X_L = x_L|X_{L-1} = x_{L-1}) \\ 
     &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_{L-1} = x_{L-1})\cdot\mathcal{T}_{x_{L-1}, x_L} \\ 
-    &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_{L-2} = x_{L-2})\cdot \mathcal{T}_{x_{L-2}, x_{L-1}}\cdot\mathcal{T}_{x_{L-1}, x_L} \\ & \hspace{0.5em}\vdots \\ &= \pi(x_0)\cdot\mathcal{T}_{x_0,x_1}\cdot \ldots \cdot \mathcal{T}_{x_{L-2}, x_{L-1}} \cdot\mathcal{T}_{x_{L-1}, x_L}
+    &= \text{P}(X_0 = x_0, X_1 = x_1, \ldots, X_{L-2} = x_{L-2})\cdot \mathcal{T}_{x_{L-2}, x_{L-1}}\cdot\mathcal{T}_{x_{L-1}, x_L} \\ & \hspace{0.5em}\vdots \\ &= \pi(x_0)\cdot\mathcal{T}_{x_0,x_1}\cdot \ldots \cdot \mathcal{T}_{x_{L-2}, x_{L-1}} \cdot\mathcal{T}_{x_{L-1}, x_L}.
 \end{align*}
-where the second inequality holds because of the Markov property. Also, note that $\pi(x_0)$ refers to the probability that the initial state is $x_0$. Hence, it is apparent that calculating the probability of a specific realization of the MC is very simple. 
+Also, note that $\pi(x_0)$ refers to the probability that the initial state is $x_0$. Hence, it is apparent that calculating the probability of a specific realization of the MC is very simple. 
 
-For a more rigorous treatment of stochastic processes and MCs, the reader is referred \cite{Pinsky2011}.
+For a more rigorous treatment of stochastic processes and MCs, the reader is referred to \cite{Pinsky2011}.
 
 \subsubsection{Markov Chain Topologies}
 The topology of a MC refers to which state transitions are permitted and prohibited, i.e. what the values in the transition probability matrix are. There exists many different ways of constructing MCs. Figure \ref{fig:ChooTopologies} gives some simple graphical explanations of these models. The figure is lent from \cite{Choo2004}, where more details about this fact can be found. 
@@ -110,38 +110,38 @@ The topology of a MC refers to which state transitions are permitted and prohibi
     \label{fig:ChooTopologies}
 \end{figure}
 
-\subsection{Hidden Markov Models} \label{Section:HiddenMarkovModels}
+\subsection{Hidden Markov Models (HMMs)} \label{Section:HiddenMarkovModels}
 Yoon gives a very nice first introduction to Hidden Markov models (HMMs): "A hidden Markov model (HMM) is a statistical model that can be used to describe the evolution of observable events that depend on internal factors, which are not directly observable." \cite{Yoon2009}. A HMM, simply put, is a model that comprises of two different parts. The first part is the sequence or the result that can be observed. A possible observed sequence could be a sequence of nucleotides or it could be a chain of events, like 20 dice throws in a row. The second part is a MC, which is \textit{hidden}, i.e. it cannot be observed. This very simple idea gives a very flexible model, which can be used for many different types of problems. The main goal is often to infer the characteristics of the hidden MC from the observed sequence. 
 
-In a HMM, a hidden sequence of states is generated, according to the MC. This sequence will not be observable and will in (almost) all practical cases be considered as unknown. Each of the states creates, or \textit{emits}, an observed value. All these observed values are what make up the observed sequence. The emission follows a multinomial distribution, where each state follows such a distribution with different parameters. An important assumption for the HMM we will deal with is that the parameters of each multinomial only depends on the state to which it belongs \cite{Choo2004}. This means that the emitted value only depends on its respective hidden state and not on other hidden states. A HMM thus represents a doubly stochastic process: the current underlying state in the MC is stochastic, with an added layer of stochasticity in the observed value. Note that each of the hidden states should be able to produce the same symbols, i.e. the same observable values, but in different frequencies \cite{Christianini2006}.
+In a HMM, a hidden sequence of states is generated, according to the characteristics of the MC. This sequence will not be observable and will in (almost) all practical cases be considered as unknown. Each of the states creates, or \textit{emits}, an observed value. All these observed values are what make up the observed sequence. The emissions follow a multinomial distribution, where each state has defined such an emission distribution, each with different parameters. An important assumption for the HMM we will deal with is that the multinomial parameters only depend on the state to which they belong \cite{Choo2004}. This means that the emitted value only depends on its respective hidden state and not on other hidden states. A HMM thus represents a doubly stochastic process: the current underlying state in the MC is stochastic, with an added layer of stochasticity in the observed value. Note that each of the hidden states should be able to produce the same symbols, i.e. the same observable values, but in different frequencies \cite{Christianini2006}.
 
-Following the same notation as earlier, let $\mathbf{X}$ be the random vector that represents the underlying MC of length $L+1$, let $\mathcal{T}$ be the transition probability matrix, let $\mathcal{H}$ denote the hidden states, where $m = \text{card}(\mathcal{H})$, and let $\pi$ be the initial distribution of states. In addition to this, we need to define some notation for the observable sequence in the HMM. First of all, let the random vector $\mathbf{Y} = (Y_0, Y_1, \ldots, Y_L)^T$ represent an observable sequence of length $L+1$. As earlier, $\mathbf{y} = (y_0, y_1, \ldots, y_L)^T$ will represent a realization of $\mathbf{Y}$. Note that both the hidden and the observed sequence are of length $L+1$, since it is assumed that each state emits exactly one symbol. The \textit{symbol alphabet}, i.e. the set of symbols that can be emitted from each state, will be denoted by $\mathcal{S} = \{s_1, \ldots, s_M\}$, where $M = \text{card}(\mathcal{S})$. The \textit{emission probabilities}, i.e. the probabilities used in each multinomial distribution in each state, are usually arranged in a matrix as well. Denote by $\mathcal{E}$ the emission probability matrix. $\mathcal{E}$ is of dimension $m \times M$, where each row in the matrix contains the emission probabilities (of each of the symbols) for a given state. Written in mathematical terms 
+Following the same notation as earlier, let $\mathbf{X}$ be the random vector that represents the underlying MC of length $L+1$, let $\mathcal{T}$ be the transition probability matrix, let $\mathcal{H}$ denote the hidden states, where $m+1 = \text{card}(\mathcal{H})$, and let $\pi$ be the initial distribution of states. In addition to this, we need to define some notation for the observable sequence in the HMM. First of all, let the random vector $\mathbf{Y} = (Y_0, Y_1, \ldots, Y_L)^T$ represent an observable sequence of length $L+1$. As earlier, $\mathbf{y} = (y_0, y_1, \ldots, y_L)^T$ will represent a realization of $\mathbf{Y}$. Note that both the hidden and the observed sequence are of length $L+1$, since it is assumed that each state emits exactly one symbol. The \textit{symbol alphabet}, i.e. the set of symbols that can be emitted from each state, will be denoted by $\mathcal{S} = \{s_0, \ldots, s_M\}$, where $M+1 = \text{card}(\mathcal{S})$. The \textit{emission probabilities}, i.e. the probabilities used in each multinomial distribution in each state, are usually arranged in a matrix as well. Denote by $\mathcal{E}$ the emission probability matrix. $\mathcal{E}$ is of dimension $(m+1) \times (M+1)$, where each row in the matrix contains the emission probabilities (of each of the symbols) for a given state. Written in mathematical terms 
 \begin{align*}
-    \mathcal{E}_{ij} &= \text{P}(Y_t = j|X_t = i), \hspace{0.5em} i \in \mathcal{H}, j \in \mathcal{S}.
+    \mathcal{E}_{ij} &= \text{P}(Y_t = j|X_t = i), \hspace{0.5em} i \in \mathcal{H}, j \in \mathcal{S}, \forall t \in [0,L].
 \end{align*}
 Time-homogeneity is also assumed in the stochastic process of emission, which means that these emission probabilities are the same $\forall t \in [0, L]$. 
 
-A HMM is completely specified by $\pi$, $\mathcal{T}$ and $\mathcal{E}$, where the state space $\mathcal{H}$ and the symbol space $\mathcal{S}$ are indirectly determined by the other quantities \cite{Eddy04}. Once these quantities are specified, one can make calculations concerning the HMM. As already noted, calculating the probability of a given realization $\mathbf{x}$ is 
+A HMM is completely specified by $\pi$, $\mathcal{T}$ and $\mathcal{E}$, where the state space $\mathcal{H}$ and the symbol space $\mathcal{S}$ are indirectly determined by the other quantities \cite{Eddy04}. Once these quantities are specified, one can make calculations concerning the HMM. As already noted, the probability of a given realization $\mathbf{x}$ is 
 
 \begin{equation}
-    \text{P}(\mathbf{X} = \mathbf{x}) = \pi(x_0)\prod_{t=2}^L\mathcal{T}_{x_{t-1}, x_t}.
+    \text{P}(\mathbf{X} = \mathbf{x}) = \pi(x_0)\prod_{t=1}^L\mathcal{T}_{x_{t-1}, x_t}.
     \label{ProbHiddenMC}
 \end{equation}
-In a similar fashion, the assumption of independence between states when generating symbols makes it possible to find the probability of the observed sequence simply by taking the product of all appropriate emission probabilities. In mathematical terms, the probability of seeing the sequence $\mathbf{y}$, given the state sequence $\mathbf{x}$, is 
+In a similar fashion, the assumption of independence between states when generating symbols makes it possible to find the probability of the observed sequence simply by calculating the product of all appropriate emission probabilities. In mathematical terms, the probability of seeing the sequence $\mathbf{y}$, given the state sequence $\mathbf{x}$, is 
 
 \begin{equation}
-    \text{P}(\mathbf{Y} = \mathbf{y}|\mathbf{X}= \mathbf{x}) = \prod_{t=1}^L\mathcal{E}_{x_t, y_t}.
+    \text{P}(\mathbf{Y} = \mathbf{y}|\mathbf{X}= \mathbf{x}) = \prod_{t=0}^L\mathcal{E}_{x_t, y_t}.
     \label{ProdObservableSeq}
 \end{equation}
 Finally, combining these results, the joint probability of the sequences $\mathbf{x}$ and $\mathbf{y}$ is 
 
 \begin{equation}
-    \text{P}(\mathbf{X} = \mathbf{x}, \mathbf{Y}= \mathbf{y}) = \text{P}(\mathbf{X}= \mathbf{x})\text{P}(\mathbf{Y}= \mathbf{y}|\mathbf{X}= \mathbf{x}) = \pi(x_0)\mathcal{E}_{x_0, y_0}\prod_{t=2}^L\mathcal{E}_{x_t, y_t}\mathcal{T}_{x_{t-1}, x_t}.
+    \text{P}(\mathbf{X} = \mathbf{x}, \mathbf{Y}= \mathbf{y}) = \text{P}(\mathbf{X}= \mathbf{x})\text{P}(\mathbf{Y}= \mathbf{y}|\mathbf{X}= \mathbf{x}) = \pi(x_0)\mathcal{E}_{x_0, y_0}\prod_{t=1}^L\mathcal{E}_{x_t, y_t}\mathcal{T}_{x_{t-1}, x_t}.
     \label{JointProbSequences}
 \end{equation}
-Keep in mind that the products in equations \eqref{ProbHiddenMC}, \eqref{ProdObservableSeq} and \eqref{JointProbSequences} usually become very small in practice. This can give numerical instability when computing the probabilities. A common trick to solve this is to work with the logarithm of the probabilities. In this way, the multiplicative properties become additive, which mitigates some problems that may occur in the calculations. This is especially important when implementing the algorithms that will be discussed later \cite{Christianini2006}. 
+Keep in mind that the products in equations \eqref{ProbHiddenMC}, \eqref{ProdObservableSeq} and \eqref{JointProbSequences} usually become very small in practice. This can give numerical instability. A common trick to solve this is to work with the logarithm of the probabilities. In this way, the multiplicative properties become additive, which mitigates some problems that may occur in the calculations. This can be especially important when implementing the algorithms that will be discussed later \cite{Christianini2006}. 
 
-Note that we here assume that the hidden state sequence $\mathbf{x}$ is known, which is usually not the case in practice. The state sequence needs to be inferred from the observed sequence, which is one of the main problems of a HMM, which will be explained in the following. For a more rigorous treatment of this topic, although in the topic of speech recognition, the reader is referred to \cite{Rabiner1989}.
+Note that we here assume that the hidden state sequence $\mathbf{x}$ is known, which is usually not the case in practice. The state sequence needs to be inferred from the observed sequence, which is one of the main problems of a HMM, which will be explained in the following. For a more rigorous treatment of this topic, in the context of speech recognition, the reader is referred to \cite{Rabiner1989}.
 
 
 \subsection{Basic Problems for HMMs}
@@ -156,7 +156,7 @@ The first issue that needs to be addressed is: how can the probability $\text{P}
     \text{P}(\textbf{y}|\theta) = \sum_{\forall\textbf{x}_i \in \mathcal{H}^n} \text{P}(\textbf{y}, \textbf{x}_i|\theta) = \sum_{\forall\textbf{x}_i \in \mathcal{H}^n} \text{P}(\mathbf{x}_i|\theta)\text{P}(\mathbf{y}|\mathbf{x}_i,\theta), 
 \label{unfeasibleForward}
 \end{equation}
-where $\mathcal{H}^n$ is the space of all possible state sequences that can yield $\mathbf{y}$. Of course, $\mathcal{H}^n$ can be very large, which makes this calculation computationally infeasible. In fact, $\mathcal{H}^n$ may consist of $m^L$ sequences, since these are all the possible state sequences. Luckily, the \textit{forward algorithm} exists, which uses dynamic programming to solve this issue in a computationally feasible manner. This algorithm has time complexity $\mathcal{O}(Lm^2)$, which is a significant improvement over the exponential solution by straightforward use of equation \eqref{unfeasibleForward}. The forward algorithm is given below.  
+where $\mathcal{H}^n$ is the space of all possible state sequences that can yield $\mathbf{y}$. Of course, $\mathcal{H}^n$ can be very large, which makes this calculation computationally infeasible. In fact, $\mathcal{H}^n$ may consist of $(m+1)^{(L+1)}$ sequences, since these are all the possible state sequences. Luckily, the \textit{forward algorithm} exists, which uses dynamic programming to solve this issue in a computationally feasible manner. This algorithm has time complexity $\mathcal{O}(Lm^2)$, which is a significant improvement over the exponential solution by straightforward use of equation \eqref{unfeasibleForward}. The forward algorithm is given below.  
 
 \begin{algorithm}
     \caption{Forward Algorithm}\label{alg:Forward}
@@ -188,7 +188,7 @@ Notice that this is equivalent to finding the state sequence that maximizes $\te
 \begin{equation*}
     \text{P}(\mathbf{X}|\mathbf{y}, \theta) = \frac{\text{P}(\mathbf{X}, \mathbf{y}|\theta)}{\text{P}(\mathbf{y}|\theta)}.
 \end{equation*}
-Again, the first solution that comes to mind would be to compare all possible state sequences $m^L$, and use equation \eqref{JointProbSequences}, but this is still computationally infeasible in most cases. Therefore, the \textit{Viterbi algorithm}, which also is based on dynamic programming, exists. The time complexity of the Viterbi algorithm is $\mathcal{O}(Lm^2)$, which is the same as for the forward algorithm. This is a large improvement over the exponential time-complexity of the straightforward solution. The Viterbi algorithm is given below. 
+Yet again, the first solution that comes to mind would be to compare all possible state sequences $(m+1)^{(L+1)}$, and use equation \eqref{JointProbSequences}, but this is still computationally infeasible. Therefore, the \textit{Viterbi algorithm}, which also is based on dynamic programming, exists. The time complexity of the Viterbi algorithm is $\mathcal{O}(Lm^2)$, which is the same as for the forward algorithm. This is a large improvement over the exponential time-complexity of the straightforward solution. The Viterbi algorithm is given below. 
 
 \begin{algorithm}
 \caption{Viterbi Algorithm}\label{alg:Viterbi}
@@ -229,7 +229,7 @@ But why do we care about finding the sequence of individually optimal states? Th
 \end{comment}
 
 \subsubsection{The Training Problem} \label{Section:TrainingProblem}
-The third issue that needs to be addressed is: how can the HMM parameters be reasonably chosen based on a set of observed sequences? For example, we have a set of sequences $\mathbf{\chi} = \{\mathbf{y}_1, \ldots, \mathbf{y}_G\}$, where each $\mathbf{y}_i, \hspace{0.2em} i \in [1,G]$ is an observed sequence of symbols, that we want to represent with a HMM. The difficulty that needs to be solved is how the parameters of the HMM can be estimated based on the set $\mathbf{\chi}$. This is what is typically called the \textit{training} or \textit{learning} problem, analogously to the need for training any other machine learning model. There exists no optimal way to train the HMM from a limited number of finite observation sequences, but there exists algorithms that can find local maximums in the observation probability. Some examples are the Baum-Welch algorithm, standard gradient based methods from optimization or simulation with Monte Carlo expectation maximization (MCEM) \cite{Yoon2009}. For detailed treatments of how the training prblem can be solved, the reader is referred to \cite{Rabiner1989}, \cite{Isaev2006} or \cite{Durbin1998}.
+The third issue that needs to be addressed is: how can the HMM parameters be reasonably chosen based on a set of observed sequences? For example, we have a set of sequences $\mathbf{\chi} = \{\mathbf{y}_1, \ldots, \mathbf{y}_G\}$, where each $\mathbf{y}_i, \hspace{0.2em} i \in [1,G]$, is an observed sequence of symbols that we want to represent with a HMM. The difficulty that needs to be solved is how the parameters of the HMM can be estimated based on the set $\mathbf{\chi}$. This is what is typically called the \textit{training} or \textit{learning} problem, analogously to the need for training any other machine learning model. There exists no optimal way to train the HMM from a limited number of finite observation sequences, but there exists algorithms that can find local maximums in the observation probability. Some examples are the Baum-Welch algorithm, standard gradient based methods from optimization or simulation with Monte Carlo expectation maximization (MCEM) \cite{Yoon2009}. For detailed treatments of how the training problem can be solved, the reader is referred to \cite{Rabiner1989}, \cite{Isaev2006} or \cite{Durbin1998}.
 
 \subsection{HMM Variants}
 There exists many variants of what we will call the standard HMM. For completeness, the standard HMM will be specified first, before the most widely used types of HMMs in bioinformatics will be presented. Note that this list is by noe means exhaustive. 
@@ -247,7 +247,7 @@ All the assumptions made in the simple model restricts the usefulness of the HMM
 Despite the fact that the strong assumptions of the standard HMM restrict the flexibility of the model, one can only imagine how the assumptions can be tweaked to create a new type of HMM. Some examples of how changes in the assumptions can mitigate some om the problems of the standard HMM are shown next.  
 
 \subsubsection{Profile-HMM}\label{Section:Profile-HMM}
-\textit{Profile-HMM}s (pro-HMMs) have specific architectures, which make them suitable for modeling sequence profiles \cite{Yoon2009}. Because of this, in the context of bioinformatics, the topology of pro-HMMs are best explained with multiple sequence alignment in mind. Two simple ways to think of a pro-HMM is as an abstract description of a protein family or a statistical summary of multiple sequence alignment \cite{Christianini2006}. A pro-HMM is constructed to not contain any cycles. Moreover, a pro-HMM consists of three different types of hidden states: match states ($M_k$), insert states ($I_k$) and delete states ($D_k$). These are used to describe symbol frequencies, insertions and deletions, respectively, at each specific position in a sequence. A great example on how to build a pro-HMM, which helps to clarify the ideas, can be found in \cite{Yoon2009}. The illustration from the example is shown in \ref{fig:Yoon2009ProfileHMMExample}.
+\textit{Profile-HMM}s (pro-HMMs) have specific architectures, which make them suitable for modeling sequence profiles \cite{Yoon2009}. Because of this, in the context of bioinformatics, the topology of pro-HMMs are best explained with multiple sequence alignment in mind. Two simple ways to think of a pro-HMM is as an abstract description of a protein family or a statistical summary of multiple sequence alignment \cite{Christianini2006}. A pro-HMM is constructed to not contain any cycles. Moreover, a pro-HMM consists of three different types of hidden states: match states ($M_k$), insert states ($I_k$) and delete states ($D_k$). These are used to describe symbol frequencies, insertions and deletions, respectively, at each specific position in a sequence. A great example on how to build a pro-HMM, which helps to clarify the ideas, can be found in \cite{Yoon2009}. The illustration from the example is shown in figure \ref{fig:Yoon2009ProfileHMMExample}.
 
 \begin{figure}[h]
     \centering
@@ -399,7 +399,7 @@ As a sidenote, p-HMMs on tree structures (PHHMTS) can be used for aligning trees
 \subsection{Other Applications}
 Some more applications of HMMs, all described by Yoon, are \textit{base-calling}, \textit{modeling DNA sequencing errors} and \textit{mcRNA indentification} \cite{Yoon2009}. These are all interesting problems, but will not be described here. 
 
-Either way, based on the short list of applications that have been described, it has hopefully become clear to the reader that HMMs are very widely used in Bioinformatics. 
+Either way, based on the short list of applications that have been described, it has hopefully become clear to the reader that HMMs are very widely used in bioinformatics. 
 
 \section{Examples in R}
 
@@ -677,8 +677,9 @@ plot(globins.PHMM)
 \end{center}
 
 \begin{thebibliography}{20}
-\bibitem{Eddy04}
-Sean R. Eddy (2004) \emph{What is a hidden Markov model?}, Nature Biotechnology, Volume 22, Number 10, 1315-1316.
+
+\bibitem{Pinsky2011}
+Mark A. Pinsky, Samuel Karlin (2011) \emph{An Introduction to Stochastic Modeling}, Fourth Edition, Elsevier
 
 \bibitem{Choo2004} 
 Khar H. Choo, Joo C. Tong, Louxin Zhang (2004) \emph{Recent Applications of Hidden Markov Models in Computational Biology}, Geno. Prot. Bioinfo, Vol. 2, No. 2, 84-96.
@@ -689,23 +690,8 @@ Byung-Jun Yoon (2009) \emph{Hidden Markov Models and their Applications in Biolo
 \bibitem{Christianini2006}
 Nello Christianini, Matthew W. Hahn (2006) \emph{Introduction to Computational Genomics: A Case Studies Approach}, Cambridge University Press.
 
-\bibitem{Smith2003}
-Smith, L., et al. (2003) \emph{Hidden Markov models and optimized sequence alignments}, Computational Biology and Chemistry, Vol. 27, 77-84.
-
-\bibitem{Feng1987}
-Feng DF, Doolittle RF (1987) \emph{Progressive sequence alignment as a prerequisite to correct phylogenetic trees}, J Mol Evol. Vol. 25, No. 4, 351-360. doi: 10.1007/BF02603120. PMID: 3118049.
-
-\bibitem{Pinsky2011}
-Mark A. Pinsky, Samuel Karlin (2011) \emph{An Introduction to Stochastic Modeling}, Fourth Edition, Elsevier
-
-\bibitem{EMBL-EBI-Multiple}
-EMBL-EBI, \emph{Multiple Sequence Alignment}, downloaded on 03.12.21, 
-url: \verb$https://www.ebi.ac.uk/Tools/msa/$
-
-\bibitem{BioInfoOrgMSA}
-Bioinformatics Organization, \emph{Multiple sequence alignment}, downloaded on 04.12.21, 
-url: \verb$https://www.bioinformatics.org/wiki/Multiple_sequence_alignment$
-
+\bibitem{Eddy04}
+Sean R. Eddy (2004) \emph{What is a hidden Markov model?}, Nature Biotechnology, Volume 22, Number 10, 1315-1316.
 
 \bibitem{Rabiner1989}
 Lawrence R. Rabiner (1989) \emph{A tutorial on hidden Markov models and selected applications in speech recognition}, Proceedings of the IEEE, Vol. 77, No. 2, 257-286
@@ -718,6 +704,20 @@ R. Durbin, S. Eddy, A. Krogh, G. Mitchison (1998) \emph{Biological Sequence Anal
 
 \bibitem{Eddy1998}
 Sean R. Eddy (1998) \emph{Profile hidden Markov models}, Bioinformatics Review, Volume 14, Number 9, 755-763.
+
+\bibitem{Smith2003}
+Smith, L., et al. (2003) \emph{Hidden Markov models and optimized sequence alignments}, Computational Biology and Chemistry, Vol. 27, 77-84.
+
+\bibitem{Feng1987}
+Feng DF, Doolittle RF (1987) \emph{Progressive sequence alignment as a prerequisite to correct phylogenetic trees}, J Mol Evol. Vol. 25, No. 4, 351-360. doi: 10.1007/BF02603120. PMID: 3118049.
+
+\bibitem{EMBL-EBI-Multiple}
+EMBL-EBI, \emph{Multiple Sequence Alignment}, downloaded on 03.12.21, 
+url: \verb$https://www.ebi.ac.uk/Tools/msa/$
+
+\bibitem{BioInfoOrgMSA}
+Bioinformatics Organization, \emph{Multiple sequence alignment}, downloaded on 04.12.21, 
+url: \verb$https://www.bioinformatics.org/wiki/Multiple_sequence_alignment$
 
 \bibitem{Yoon2006}
 Byung-Jun Yoon, P. P. Vaidyanathan (2006) \emph{Context-Sensitive Hidden Markov Models for Modeling Long-Range Dependencies in Symbol Sequences}, IEEE TRANSACTIONS ON SIGNAL PROCESSING, Volume 54, Number 11, 4169-4184.
